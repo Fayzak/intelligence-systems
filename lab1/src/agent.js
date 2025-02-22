@@ -79,40 +79,30 @@ class Agent {
         if(p[0] == "r") this.position = "r" // Правая половина поля
         if(p[1]) this.id = p[1] // id игрока
     }
-    calculatePosition(msg) {
-        // Пример вычисления координат на основе видимых флагов
-        const seenFlags = this.extractSeenFlags(msg);
-        if (seenFlags.length >= 2) {
-            const [flag1, flag2] = seenFlags;
-            const { x: x1, y: y1 } = FLAGS[flag1.name];
-            const { x: x2, y: y2 } = FLAGS[flag2.name];
-            const d1 = flag1.distance;
-            const d2 = flag2.distance;
+    calculatePosition(p) {
+        const flag1 = p[2]
+        const flag2 = p[3]
 
-            // Решение системы уравнений для вычисления координат
-            const x = (y1 - y2) / (x2 - x1) * ((y2 ** 2 - y1 ** 2 + x2 ** 2 - x1 ** 2 + d1 ** 2 - d2 ** 2) / (2 * (x2 - x1))) +
-                ((y2 ** 2 - y1 ** 2 + x2 ** 2 - x1 ** 2 + d1 ** 2 - d2 ** 2) / (2 * (x2 - x1)));
-            const y = ((y2 ** 2 - y1 ** 2 + x2 ** 2 - x1 ** 2 + d1 ** 2 - d2 ** 2) / (2 * (x2 - x1))) / ((y1 - y2) / (x2 - x1)) +
-                ((y2 ** 2 - y1 ** 2 + x2 ** 2 - x1 ** 2 + d1 ** 2 - d2 ** 2) / (2 * (x2 - x1)));
+        const flag_name_1 = flag1["cmd"]["p"].join('')
+        const flag_name_2 = flag2["cmd"]["p"].join('')
 
-            console.log(`Calculated position: x=${x.toFixed(2)}, y=${y.toFixed(2)}`);
-        }
-    }
-    extractSeenFlags(msg) {
-        // Извлечение видимых флагов из сообщения
-        const flagPattern = /\(f (\w+) [\d.-]+ [\d.-]+ [\d.-]+ [\d.-]+\)/g;
-        const matches = msg.matchAll(flagPattern);
-        return Array.from(matches).map(match => {
-            const [, name, distance, direction] = match[0].match(/[\w.+-]+/g);
-            return { name, distance: parseFloat(distance), direction: parseFloat(direction) };
-        });
+        const d1 = flag1["p"][0]
+        const d2 = flag2["p"][0]
+
+        const { x: x1, y: y1 } = FLAGS[flag_name_1]
+        const { x: x2, y: y2 } = FLAGS[flag_name_2]
+
+        // // Решение системы уравнений для вычисления координат
+        // const x = (y1 - y2) / (x2 - x1) * ((y2 ** 2 - y1 ** 2 + x2 ** 2 - x1 ** 2 + d1 ** 2 - d2 ** 2) / (2 * (x2 - x1))) +
+        //     ((y2 ** 2 - y1 ** 2 + x2 ** 2 - x1 ** 2 + d1 ** 2 - d2 ** 2) / (2 * (x2 - x1)))
+        // const y = ((y2 ** 2 - y1 ** 2 + x2 ** 2 - x1 ** 2 + d1 ** 2 - d2 ** 2) / (2 * (x2 - x1))) / ((y1 - y2) / (x2 - x1)) +
+        //     ((y2 ** 2 - y1 ** 2 + x2 ** 2 - x1 ** 2 + d1 ** 2 - d2 ** 2) / (2 * (x2 - x1)))
+
+        // console.log(`Calculated position: x=${x.toFixed(2)}, y=${y.toFixed(2)}`)
     }
     analyzeEnv(msg, cmd, p) {
-        console.log(cmd)
-        console.log(msg)
-        // p - уже распаршенный msg, попробовать с ним
         if (cmd === "see") {
-            this.calculatePosition(msg);
+            this.calculatePosition(p);
         }
     } // Анализ сообщения
     sendCmd() {
