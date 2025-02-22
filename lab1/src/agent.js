@@ -55,6 +55,7 @@ class Agent {
             }
         })
         this.coords = {x: 0, y: 0}
+        this.angle = 0;
     }
     msgGot(msg) { // Получение сообщения
         let data = msg.toString('utf8') // Приведение с строке
@@ -66,6 +67,9 @@ class Agent {
     }
     socketSend(cmd, value) { // Отправка команды
         this.socket.sendMsg(`(${cmd} ${value})`)
+    }
+    setAngle(v) {
+        this.angle = v
     }
     processMsg(msg) { // Обработка сообщения
         let data = Msg.parseMsg(msg) // Разбора сообщения
@@ -100,9 +104,17 @@ class Agent {
 
         // console.log(`Calculated position: x=${x.toFixed(2)}, y=${y.toFixed(2)}`)
     }
+    actOnHear(p) {
+        const message = p[2]
+        if (message === "play_on") {
+            this.socketSend("turn", `${this.angle}`)
+        }
+    }
     analyzeEnv(msg, cmd, p) {
         if (cmd === "see") {
             this.calculatePosition(p);
+        } else if (cmd === "hear") {
+            this.actOnHear(p)
         }
     } // Анализ сообщения
     sendCmd() {
