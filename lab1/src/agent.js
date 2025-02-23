@@ -99,35 +99,6 @@ class Agent {
         if(p[1]) this.id = p[1] // id игрока
     }
 
-    calculatePositionThreeFlags(flag1, flag2, flag3) {
-
-        console.log(flag1, flag2, flag3)
-
-        const d1 = flag1.d
-        const d2 = flag2.d
-        const d3 = flag3.d
-
-        const x1 = flag1.x
-        const x2 = flag2.x
-        const x3 = flag3.x
-
-        const y1 = flag1.y
-        const y2 = flag2.y
-        const y3 = flag3.y
-
-        const alpha1 = (y1 - y2) / (x2 - x1)
-        const beta1 = (y2 ** 2 - y1 ** 2 + x2 ** 2 - x1 ** 2 + d1 ** 2 - d2 ** 2) / (2 * (x2 - x1))
-
-        const alpha2 = (y1 - y3) / (x3 - x1)
-        const beta2 = (y3 ** 2 - y1 ** 2 + x3 ** 2 - x1 ** 2 + d1 ** 2 - d3 ** 2) / (2 * (x3 - x1))
-
-        return {
-            x: alpha1 * (beta1 - beta2) / (alpha2 - alpha1) + beta1,
-            y: (beta1 - beta2) / (alpha2 - alpha1)
-        }
-
-    }
-
     actOnHear(p) {
         const message = p[2]
         if (message === "play_on") {
@@ -135,9 +106,10 @@ class Agent {
         }
     }
 
-    calculatePositionTwoFlags(flag1, flag2) {
+    getPossiblePositions(flag1, flag2) {
 
-        console.log(flag1, flag2)
+        console.debug("Flag 1: ", flag1)
+        console.debug("Flag 2: ", flag2)
 
         const d1 = flag1.d
         const d2 = flag2.d
@@ -148,85 +120,140 @@ class Agent {
         const y1 = flag1.y
         const y2 = flag2.y
 
-        let possible_positions = []
+        if (x1 == x2) {
+            console.debug("x1 == x2")
 
-        if (x1 != x2 && y1 != y2) {
+            const y = (d1 ** 2 - d2 ** 2 + x2 ** 2 - x1 ** 2 + y2 ** 2 - y1 ** 2) / (2 * (y2 - y1))
 
-            const alpha = (y1 - y2) / (x2 - x1)
-            const beta = (y2 ** 2 - y1 ** 2 + x2 ** 2 - x1 ** 2 + d1 ** 2 - d2 ** 2) / (2 * (x2 - x1))
+            let s = d1 ** 2 - (y - y1) ** 2
 
-            const a = alpha ** 2 + 1
-            const b = -2 * (alpha * (x1 - beta) + y1)
-            const c = (x1 - beta) ** 2 + y1 ** 2 - d1 ** 2
+            if (s < 0) {
+                s = 0
+            }
 
-            const possible_y1 = (-b + Math.sqrt(b ** 2 - 4 * a * c)) / (2 * a)
-            const possible_y2 = (-b - Math.sqrt(b ** 2 - 4 * a * c)) / (2 * a)
-
-            possible_positions = [
+            return [
                 {
-                    x: x1 + Math.sqrt(d1 ** 2 - (possible_y1 - y1) ** 2),
-                    y: possible_y1
-                },
-                {
-                    x: x1 + Math.sqrt(d1 ** 2 - (possible_y2 - y1) ** 2),
-                    y: possible_y2
-                },
-                {
-                    x: x1 - Math.sqrt(d1 ** 2 - (possible_y1 - y1) ** 2),
-                    y: possible_y1
-                },
-                {
-                    x: x1 - Math.sqrt(d1 ** 2 - (possible_y2 - y1) ** 2),
-                    y: possible_y2
-                }
-            ]
-
-        } else if (x1 == x2) {
-
-            const y = (y2 ** 2 - y1 ** 2 + d1 ** 2 - d2 ** 2) / (2 * (y2 - y1))
-
-            possible_positions = [
-                {
-                    x: x1 + Math.sqrt(d1 ** 2 - (y - y1) ** 2),
+                    x: x1 + Math.sqrt(s),
                     y: y
                 },
                 {
-                    x: x1 - Math.sqrt(d1 ** 2 - (y - y1) ** 2),
+                    x: x1 - Math.sqrt(s),
                     y: y
                 }
             ]
 
         } else if (y1 == y2) {
+            console.debug("y1 == y2")
 
-            const x = (x2 ** 2 - x1 ** 2 + d1 ** 2 - d2 ** 2) / (2 * (x2 - x1))
+            const x = (d1 ** 2 - d2 ** 2 + x2 ** 2 - x1 ** 2 + y2 ** 2 - y1 ** 2) / (2 * (x2 - x1))
 
-            possible_positions = [
+            let s = d1 ** 2 - (x - x1) ** 2
+
+            if (s < 0) {
+                s = 0
+            }
+
+            return [
                 {
                     x: x,
-                    y: y1 + Math.sqrt(d1 ** 2 - (x - x1) ** 2)
+                    y: y1 + Math.sqrt(s),
                 },
                 {
                     x: x,
-                    y: y1 - Math.sqrt(d1 ** 2 - (x - x1) ** 2)
+                    y: y1 - Math.sqrt(s),
                 }
             ]
 
         }
 
-        return possible_positions.filter(position => {
-            return position.x <= 54 && position.x >= -54 && position.y <= 32 && position.y >= -32
-        })
-    }
+        console.debug("x1 != x2 and y1 != y2")
 
-    calculatePosition(flags) {
+        const alpha = (y1 - y2) / (x2 - x1)
+        const beta = (d1 ** 2 - d2 ** 2 + x2 ** 2 - x1 ** 2 + y2 ** 2 - y1 ** 2) / (2 * (x2 - x1))
 
-        
-        if (flags.length >= 3) {
-            console.log(this.calculatePositionThreeFlags(flags[0], flags[1], flags[2]))
-        } else if (flags.length == 2) {
-            console.log(this.calculatePositionTwoFlags(flags[0], flags[1]))
+        const a = alpha ** 2 + 1
+        const b = 2 * (alpha * (beta - x1) - y1)
+        const c = beta ** 2 - 2 * beta * x1 + x1 ** 2 + y1 ** 2 - d1 ** 2
+
+        let D = b ** 2 - 4 * a * c
+
+        if (D < 0) {
+            D = 0
         }
 
+        console.debug("alpha: ", alpha)
+        console.debug("beta: ", beta)
+        console.debug("a: ", a)
+        console.debug("b: ", b)
+        console.debug("c: ", c)
+        console.debug("D: ", D)
+
+        const possible_y1 = (-b + Math.sqrt(D)) / (2 * a)
+        const possible_y2 = (-b - Math.sqrt(D)) / (2 * a)
+
+        return [
+            {
+                x: alpha * possible_y1 + beta,
+                y: possible_y1
+            },
+            {
+                x: alpha * possible_y2 + beta,
+                y: possible_y2
+            }
+        ]
+    }
+
+    isOnField(p) {
+        return p.x >= -54 && p.x <= 54 && p.y >= -32 && p.y <= 32
+    }
+
+    calculateMSE(flags, predicted_position) {
+        return flags.reduce((acc, flag) => {
+            return acc + (flag.d - FLAGS.distance(flag, predicted_position)) ** 2
+        }, 0) / flags.length
+    }
+
+    shuffle(array) {
+        let currentIndex = array.length;
+
+        while (currentIndex != 0) {
+
+            let randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+
+            [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex], array[currentIndex]];
+        }
+    }
+    
+    calculatePosition(flags) {
+
+        if (flags.length < 2) {
+            console.info("Not enough flags to calculate position")
+            return null
+        }
+
+        this.shuffle(flags)
+
+        let possible_positions = []
+
+        for (let i = 0; i < flags.length - 1; i++) {
+            possible_positions.push(...this.getPossiblePositions(flags[i], flags[i + 1]))
+        }
+
+        // let possible_positions = this.getPossiblePositions(flags[0], flags[1])
+        console.debug("Possible positions: ", possible_positions)
+
+        const metrics = possible_positions.map(position => {
+            const metric = this.calculateMSE(flags, position)
+            return metric
+        })
+
+        console.debug("Calculated metrics: ", metrics)
+
+        const min_index = metrics.indexOf(Math.min(...metrics))
+
+        return possible_positions[min_index]
 
     }
 
@@ -252,14 +279,41 @@ class Agent {
         })
     }
 
+    getGameObjects(p) {
+        return p.filter(game_object => {
+            return typeof game_object === "object" && !(game_object.cmd.p.join("") in FLAGS)
+        }).map(game_object => {
+            const name = game_object.cmd.p.join("")
+            return {
+                name: name,
+                d: game_object.p[0],
+                angle: game_object.p[1]
+            }
+        })
+    }
+
     analyzeEnv(msg, cmd, p) {
         if (cmd === "see") {
 
             const flags = this.getFlags(p)
 
-            console.log("Flags: ", flags)
+            const gameObjects = this.getGameObjects(p)
 
-            this.calculatePosition(flags);
+            console.debug("Flags: ", flags)
+            console.debug("Game objects: ", gameObjects)
+
+            const start = new Date().getTime()
+            const position = this.calculatePosition(flags);
+            const end = new Date().getTime()
+
+            console.debug("Time: ", end - start)
+
+            if (!position) {
+                console.debug("Position not found")
+            } else {
+                console.debug("Position found: ", position)
+                this.coords = position
+            }
         }
     } // Анализ сообщения
 
