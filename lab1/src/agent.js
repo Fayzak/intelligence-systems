@@ -112,6 +112,39 @@ class Agent {
         }
     }
 
+    actOnSee(p) {
+        const flags = this.getFlags(p)
+        this.shuffle(flags)
+
+        const gameObjects = this.getGameObjects(p)
+
+        console.debug("Flags: ", flags)
+        console.debug("Game objects: ", gameObjects)
+
+        const start = new Date().getTime()
+        const position = this.calculatePosition(flags);
+        const end = new Date().getTime()
+
+        console.debug("Time: ", end - start)
+
+        if (!position) {
+            console.warn("Position not found")
+        } else {
+            console.info("Position found: ", position)
+            this.position = position
+        }
+
+        for (let gameObject of gameObjects) {
+            const objectPosition = this.calculateObjectPosition(gameObject, this.position, flags)
+            gameObject = {
+                ...gameObject,
+                ...objectPosition
+            }
+
+            console.info("Object: ", gameObject)
+        }
+    }
+
     getIntersections(circle1, circle2) {
 
         console.debug("Circle 1: ", circle1)
@@ -374,38 +407,9 @@ class Agent {
 
     analyzeEnv(msg, cmd, p) {
         if (cmd === "see") {
-
-            const flags = this.getFlags(p)
-            this.shuffle(flags)
-
-            const gameObjects = this.getGameObjects(p)
-
-            console.debug("Flags: ", flags)
-            console.debug("Game objects: ", gameObjects)
-
-            const start = new Date().getTime()
-            const position = this.calculatePosition(flags);
-            const end = new Date().getTime()
-
-            console.debug("Time: ", end - start)
-
-            if (!position) {
-                console.warn("Position not found")
-            } else {
-                console.info("Position found: ", position)
-                this.position = position
-            }
-
-            for (let gameObject of gameObjects) {
-                const objectPosition = this.calculateObjectPosition(gameObject, this.position, flags)
-                gameObject = {
-                    ...gameObject,
-                    ...objectPosition
-                }
-
-                console.info("Object: ", gameObject)
-            }
-
+            this.actOnSee(p)
+        } else if (cmd === "hear") {
+            this.actOnHear(p)
         }
     } // Анализ сообщения
 
