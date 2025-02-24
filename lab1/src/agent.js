@@ -345,12 +345,10 @@ class Agent {
 
         // TODO: process possible errors
 
-        let newFlags = structuredClone(flags)
-
         let resultX = 0
         let resultY = 0
 
-        for (const flag of newFlags) {
+        for (const flag of flags) {
 
             const { x: x, y: y, angle: alpha } = flag
             const { d: d, angle: beta } = gameObject
