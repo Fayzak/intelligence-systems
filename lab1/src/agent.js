@@ -366,8 +366,8 @@ class Agent {
         }
 
         return {
-            x: resultX / newFlags.length,
-            y: resultY / newFlags.length
+            x: resultX / flags.length,
+            y: resultY / flags.length
         }
 
     }
