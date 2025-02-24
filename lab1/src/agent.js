@@ -4,33 +4,33 @@ const readline = require('readline')
 // Подключение модуля ввода из командной строки
 
 const FLAGS = {
-    ftl50: {x: -50, y: 39}, ftl40: {x: -40, y: 39},
-    ftl30: {x: -30, y: 39}, ftl20: {x: -20, y: 39},
-    ftl10: {x: -10, y: 39}, ft0: {x: 0, y: 39},
-    ftr10: {x: 10, y: 39}, ftr20: {x: 20, y: 39},
-    ftr30: {x: 30, y: 39}, ftr40: {x: 40, y: 39},
-    ftr50: {x: 50, y: 39}, fbl50: {x: -50, y: -39},
-    fbl40: {x: -40, y: -39}, fbl30: {x: -30, y: -39},
-    fbl20: {x: -20, y: -39}, fbl10: {x: -10, y: -39},
-    fb0: {x: 0, y: -39}, fbr10: {x: 10, y: -39},
-    fbr20: {x: 20, y: -39}, fbr30: {x: 30, y: -39},
-    fbr40: {x: 40, y: -39}, fbr50: {x: 50, y: -39},
-    flt30: {x: -57.5, y: 30}, flt20: {x: -57.5, y: 20},
-    flt10: {x: -57.5, y: 10}, fl0: {x: -57.5, y: 0},
-    flb10: {x: -57.5, y: -10}, flb20: {x: -57.5, y: -20},
-    flb30: {x: -57.5, y: -30}, frt30: {x: 57.5, y: 30},
-    frt20: {x: 57.5, y: 20}, frt10: {x: 57.5, y: 10},
-    fr0: {x: 57.5, y: 0}, frb10: {x: 57.5, y: -10},
-    frb20: {x: 57.5, y: -20}, frb30: {x: 57.5, y: -30},
-    fglt: {x: -52.5, y: 7.01}, fglb: {x: -52.5, y: -7.01},
+    ftl50: {x: -50, y: -39}, ftl40: {x: -40, y: -39},
+    ftl30: {x: -30, y: -39}, ftl20: {x: -20, y: -39},
+    ftl10: {x: -10, y: -39}, ft0: {x: 0, y: -39},
+    ftr10: {x: 10, y: -39}, ftr20: {x: 20, y: -39},
+    ftr30: {x: 30, y: -39}, ftr40: {x: 40, y: -39},
+    ftr50: {x: 50, y: -39}, fbl50: {x: -50, y: 39},
+    fbl40: {x: -40, y: 39}, fbl30: {x: -30, y: 39},
+    fbl20: {x: -20, y: 39}, fbl10: {x: -10, y: 39},
+    fb0: {x: 0, y: 39}, fbr10: {x: 10, y: 39},
+    fbr20: {x: 20, y: 39}, fbr30: {x: 30, y: 39},
+    fbr40: {x: 40, y: 39}, fbr50: {x: 50, y: 39},
+    flt30: {x: -57.5, y: -30}, flt20: {x: -57.5, y: -20},
+    flt10: {x: -57.5, y: -10}, fl0: {x: -57.5, y: 0},
+    flb10: {x: -57.5, y: 10}, flb20: {x: -57.5, y: 20},
+    flb30: {x: -57.5, y: 30}, frt30: {x: 57.5, y: -30},
+    frt20: {x: 57.5, y: -20}, frt10: {x: 57.5, y: -10},
+    fr0: {x: 57.5, y: 0}, frb10: {x: 57.5, y: 10},
+    frb20: {x: 57.5, y: 20}, frb30: {x: 57.5, y: 30},
+    fglt: {x: -52.5, y: -7.01}, fglb: {x: -52.5, y: 7.01},
     gl: {x: -52.5, y: 0}, gr: {x: 52.5, y: 0}, fc: {x: 0, y: 0},
-    fplt: {x: -36, y: 20.15}, fplc: {x: -36, y: 0},
-    fplb: {x: -36, y: -20.15}, fgrt: {x: 52.5, y: 7.01},
-    fgrb: {x: 52.5, y: -7.01}, fprt: {x: 36, y: 20.15},
-    fprc: {x: 36, y: 0}, fprb: {x: 36, y: -20.15},
-    flt: {x: -52.5, y: 34}, fct: {x: 0, y: 34},
-    frt: {x: 52.5, y: 34}, flb: {x: -52.5, y: -34},
-    fcb: {x: 0, y: -34}, frb: {x: 52.5, y: -34},
+    fplt: {x: -36, y: -20.15}, fplc: {x: -36, y: 0},
+    fplb: {x: -36, y: 20.15}, fgrt: {x: 52.5, y: -7.01},
+    fgrb: {x: 52.5, y: 7.01}, fprt: {x: 36, y: -20.15},
+    fprc: {x: 36, y: 0}, fprb: {x: 36, y: 20.15},
+    flt: {x: -52.5, y: -34}, fct: {x: 0, y: -34},
+    frt: {x: 52.5, y: -34}, flb: {x: -52.5, y: 34},
+    fcb: {x: 0, y: 34}, frb: {x: 52.5, y: 34},
     distance(p1, p2) {
         return Math.sqrt((p1.x-p2.x)**2+(p1.y-p2.y)**2)
     },
@@ -175,7 +175,9 @@ class Agent {
                 }
             ]
 
-        } else if (y1 == y2) {
+        }
+
+        if (y1 == y2) {
             console.debug("y1 == y2")
 
             const x = (d1 ** 2 - d2 ** 2 + x2 ** 2 - x1 ** 2 + y2 ** 2 - y1 ** 2) / (2 * (x2 - x1))
@@ -268,7 +270,9 @@ class Agent {
             
             if (x1 == x2) {
                 return flag.x == x1
-            } else if (y1 == y2) {
+            }
+
+            if (y1 == y2) {
                 return flag.y == y1
             }
 
@@ -329,9 +333,11 @@ class Agent {
         }
 
         const metrics = possiblePositions.map(position => this.calculateMSE(flags, position))
-
-        let approximatePosition = possiblePositions[metrics.indexOf(Math.min(...metrics))]
-        return this.averagiatePosition(approximatePosition, flags)
+        const { x: x, y: y } = this.averagiatePosition(possiblePositions[metrics.indexOf(Math.min(...metrics))], flags)
+        return {
+            x: Number(x.toFixed(2)),
+            y: Number(y.toFixed(2))
+        } 
         
     }
 
@@ -388,7 +394,7 @@ class Agent {
             const { x: xCurrent, y: yCurrent } = position
 
             const l = FLAGS.distance(position, flag)
-            const gamma = this.radian(alpha - beta)
+            const gamma = this.radian(beta - alpha)
 
             const xNew = xCurrent + d / l * ((x - xCurrent) * Math.cos(gamma) - (y - yCurrent) * Math.sin(gamma))
             const yNew = yCurrent + d / l * ((x - xCurrent) * Math.sin(gamma) + (y - yCurrent) * Math.cos(gamma))
@@ -399,18 +405,23 @@ class Agent {
         }
 
         return {
-            x: resultX / flags.length,
-            y: resultY / flags.length
+            x: Number((resultX / flags.length).toFixed(2)),
+            y: Number((resultY / flags.length).toFixed(2))
         }
 
     }
 
     analyzeEnv(msg, cmd, p) {
-        if (cmd === "see") {
-            this.actOnSee(p)
-        } else if (cmd === "hear") {
-            this.actOnHear(p)
+    
+        switch (cmd) {
+            case "see":
+                this.actOnSee(p)
+                break;
+            case "hear":
+                this.actOnHear(p)
+                break;
         }
+
     } // Анализ сообщения
 
     sendCmd() {
