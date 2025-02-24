@@ -1,3 +1,5 @@
+require('./logging.js')('info')
+
 const Agent = require('./agent') // Импорт агента
 const VERSION = 7 // Версия сервера
 

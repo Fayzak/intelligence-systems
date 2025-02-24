@@ -42,6 +42,7 @@ class Agent {
         this.position = "l" // По умолчанию ~ левая половина поля
         this.run = false // Игра начата
         this.act = null // Действия
+
         this.r1 = readline.createInterface({ // Чтение консоли
             input: process.stdin,
             output: process.stdout
@@ -63,7 +64,8 @@ class Agent {
                 }
             }
         })
-        this.coords = {x: 0, y: 0}
+
+        this.position = {x: 0, y: 0}
         this.angle = 0;
     }
 
@@ -89,8 +91,12 @@ class Agent {
         let data = Msg.parseMsg(msg) // Разбора сообщения
         if (!data) throw new Error("Parse error\n" + msg)
         // Первое (hear) - начало игры
-        if (data.cmd == "hear") this.run = true
-        if (data.cmd == "init") this.initAgent(data.p) // Иницализация
+        if (data.cmd == "hear" && !this.run) {
+            this.run = true
+        }
+        if (data.cmd == "init") {
+            this.initAgent(data.p) // Иницализация
+        }
         this.analyzeEnv(data.msg, data.cmd, data.p) // Обработка
     }
 
@@ -106,19 +112,13 @@ class Agent {
         }
     }
 
-    getPossiblePositions(flag1, flag2) {
+    getIntersections(circle1, circle2) {
 
-        console.debug("Flag 1: ", flag1)
-        console.debug("Flag 2: ", flag2)
+        console.debug("Circle 1: ", circle1)
+        console.debug("Circle 2: ", circle2)
 
-        const d1 = flag1.d
-        const d2 = flag2.d
-
-        const x1 = flag1.x
-        const x2 = flag2.x
-
-        const y1 = flag1.y
-        const y2 = flag2.y
+        const { x: x1, y: y1, d: d1 } = circle1
+        const { x: x2, y: y2, d: d2 } = circle2
 
         if (x1 == x2) {
             console.debug("x1 == x2")
@@ -188,28 +188,28 @@ class Agent {
         console.debug("c: ", c)
         console.debug("D: ", D)
 
-        const possible_y1 = (-b + Math.sqrt(D)) / (2 * a)
-        const possible_y2 = (-b - Math.sqrt(D)) / (2 * a)
+        const possibleY1 = (-b + Math.sqrt(D)) / (2 * a)
+        const possibleY2 = (-b - Math.sqrt(D)) / (2 * a)
 
         return [
             {
-                x: alpha * possible_y1 + beta,
-                y: possible_y1
+                x: alpha * possibleY1 + beta,
+                y: possibleY1
             },
             {
-                x: alpha * possible_y2 + beta,
-                y: possible_y2
+                x: alpha * possibleY2 + beta,
+                y: possibleY2
             }
         ]
     }
 
     isOnField(p) {
-        return p.x >= -54 && p.x <= 54 && p.y >= -32 && p.y <= 32
+        return p.x >= -57.5 && p.x <= 57.5 && p.y >= -39 && p.y <= 39
     }
 
-    calculateMSE(flags, predicted_position) {
+    calculateMSE(flags, predictedPosition) {
         return flags.reduce((acc, flag) => {
-            return acc + (flag.d - FLAGS.distance(flag, predicted_position)) ** 2
+            return acc + (flag.d - FLAGS.distance(flag, predictedPosition)) ** 2
         }, 0) / flags.length
     }
 
@@ -225,36 +225,81 @@ class Agent {
             array[randomIndex], array[currentIndex]];
         }
     }
+
+    checkIfOnOneLine(flags) {
+
+        const { x: x1, y: y1 } = flags[0]
+        const { x: x2, y: y2 } = flags[1]
+
+        const onOneLine = (flag) => {
+            
+            if (x1 == x2) {
+                return flag.x == x1
+            } else if (y1 == y2) {
+                return flag.y == y1
+            }
+
+            const value = (flag.x - x1) / (x2 - x1) - (flag.y - y1) / (y2 - y1)
+
+            return Math.abs(value) <= 0.001
+        }
+
+        return flags.every(onOneLine)
+
+    }
+
+    averagiatePosition(position, flags) {
+
+        for (const flag of flags) {
+
+            const { x: x, y: y, d: d } = flag
+
+            const { x: xPrev, y: yPrev } = position
+            const dPrev = FLAGS.distance(flag, position)
+
+            const dNew = (d + dPrev) / 2
+
+            const cos_alpha = (x - xPrev) / dPrev 
+            const sin_alpha = (y - yPrev) / dPrev 
+            
+            position = {
+                x: xPrev + (dPrev - dNew) * cos_alpha,
+                y: yPrev + (dPrev - dNew) * sin_alpha
+            }
+        }
+
+        return position
+    }
     
     calculatePosition(flags) {
 
         if (flags.length < 2) {
-            console.info("Not enough flags to calculate position")
+            console.warn("Not enough flags to calculate position")
             return null
         }
 
-        this.shuffle(flags)
+        const possiblePositions = this.getIntersections(flags[0], flags[1])
 
-        let possible_positions = []
+        console.debug("Possible positions: ", possiblePositions)
 
-        for (let i = 0; i < flags.length - 1; i++) {
-            possible_positions.push(...this.getPossiblePositions(flags[i], flags[i + 1]))
+        if (flags.length == 2 || this.checkIfOnOneLine(flags)) {
+            console.debug("On one line or not enough flags", this.checkIfOnOneLine(flags))
+            const filtered = possiblePositions.filter(this.isOnField)
+            console.debug("Filtered positions: ", filtered)
+
+            if (filtered.length != 1) {
+                console.warn("Can't determine position")
+                return null
+            }
+
+            return filtered[0]
         }
 
-        // let possible_positions = this.getPossiblePositions(flags[0], flags[1])
-        console.debug("Possible positions: ", possible_positions)
+        const metrics = possiblePositions.map(position => this.calculateMSE(flags, position))
 
-        const metrics = possible_positions.map(position => {
-            const metric = this.calculateMSE(flags, position)
-            return metric
-        })
-
-        console.debug("Calculated metrics: ", metrics)
-
-        const min_index = metrics.indexOf(Math.min(...metrics))
-
-        return possible_positions[min_index]
-
+        let approximatePosition = possiblePositions[metrics.indexOf(Math.min(...metrics))]
+        return this.averagiatePosition(approximatePosition, flags)
+        
     }
 
     getFlags(p) {
@@ -280,22 +325,60 @@ class Agent {
     }
 
     getGameObjects(p) {
-        return p.filter(game_object => {
-            return typeof game_object === "object" && !(game_object.cmd.p.join("") in FLAGS)
-        }).map(game_object => {
-            const name = game_object.cmd.p.join("")
+        return p.filter(gameObject => {
+            return typeof gameObject === "object" && !(gameObject.cmd.p.join("") in FLAGS)
+        }).map(gameObject => {
+            const name = gameObject.cmd.p.join("")
             return {
                 name: name,
-                d: game_object.p[0],
-                angle: game_object.p[1]
+                d: gameObject.p[0],
+                angle: gameObject.p[1]
             }
         })
+    }
+
+    radian(degrees) {
+        return degrees * (Math.PI / 180)
+    }
+
+    calculateObjectPosition(gameObject, position, flags) {
+
+        // TODO: process possible errors
+
+        let newFlags = structuredClone(flags)
+
+        let resultX = 0
+        let resultY = 0
+
+        for (const flag of newFlags) {
+
+            const { x: x, y: y, angle: alpha } = flag
+            const { d: d, angle: beta } = gameObject
+            const { x: xCurrent, y: yCurrent } = position
+
+            const l = FLAGS.distance(position, flag)
+            const gamma = this.radian(alpha - beta)
+
+            const xNew = xCurrent + d / l * ((x - xCurrent) * Math.cos(gamma) - (y - yCurrent) * Math.sin(gamma))
+            const yNew = yCurrent + d / l * ((x - xCurrent) * Math.sin(gamma) + (y - yCurrent) * Math.cos(gamma))
+
+            resultX += xNew
+            resultY += yNew
+
+        }
+
+        return {
+            x: resultX / newFlags.length,
+            y: resultY / newFlags.length
+        }
+
     }
 
     analyzeEnv(msg, cmd, p) {
         if (cmd === "see") {
 
             const flags = this.getFlags(p)
+            this.shuffle(flags)
 
             const gameObjects = this.getGameObjects(p)
 
@@ -309,11 +392,22 @@ class Agent {
             console.debug("Time: ", end - start)
 
             if (!position) {
-                console.debug("Position not found")
+                console.warn("Position not found")
             } else {
-                console.debug("Position found: ", position)
-                this.coords = position
+                console.info("Position found: ", position)
+                this.position = position
             }
+
+            for (let gameObject of gameObjects) {
+                const objectPosition = this.calculateObjectPosition(gameObject, this.position, flags)
+                gameObject = {
+                    ...gameObject,
+                    ...objectPosition
+                }
+
+                console.info("Object: ", gameObject)
+            }
+
         }
     } // Анализ сообщения
 
