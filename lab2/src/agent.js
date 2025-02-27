@@ -2,6 +2,7 @@ const Msg = require('./msg')
 // Подключение модуля разбора сообщений от сервера
 const readline = require('readline')
 // Подключение модуля ввода из командной строки
+const Controller = require('./controller')
 
 const FLAGS = {
     ftl50: {x: -50, y: -39}, ftl40: {x: -40, y: -39},
@@ -67,6 +68,9 @@ class Agent {
 
         this.position = {x: 0, y: 0}
         this.angle = 0;
+
+        this.flags = undefined
+        this.controller = new Controller()
     }
 
     msgGot(msg) { // Получение сообщения
@@ -107,13 +111,14 @@ class Agent {
 
     actOnHear(p) {
         const message = p[2]
-        if (message === "play_on") {
-            this.socketSend("turn", `${this.angle}`)
-        }
+        this.controller.processServerMessage(message, this.flags)
+        let command = this.controller.getServerCommand()
+        console.log(command)
     }
 
     actOnSee(p) {
         const flags = this.getFlags(p)
+        this.flags = flags
         this.shuffle(flags)
 
         const gameObjects = this.getGameObjects(p)
@@ -130,7 +135,7 @@ class Agent {
         if (!position) {
             console.warn("Position not found")
         } else {
-            console.info("Position found: ", position)
+            console.debug("Position found: ", position)
             this.position = position
         }
 
@@ -141,7 +146,7 @@ class Agent {
                 ...objectPosition
             }
 
-            console.info("Object: ", gameObject)
+            console.debug("Object: ", gameObject)
         }
     }
 
@@ -355,6 +360,7 @@ class Agent {
             const flag_name = flag.cmd.p.join("")
 
             return {
+                name: flag_name,
                 d: flag.p[0],
                 angle: flag.p[1],
                 ...FLAGS[flag_name]
