@@ -40,7 +40,7 @@ const FLAGS = {
 class Agent {
 
     constructor() {
-        this.position = "l" // По умолчанию ~ левая половина поля
+        this.side = "l" // По умолчанию ~ левая половина поля
         this.run = false // Игра начата
         this.act = null // Действия
 
@@ -106,13 +106,13 @@ class Agent {
     }
 
     initAgent(p) {
-        if(p[0] == "r") this.position = "r" // Правая половина поля
+        if(p[0] == "r") this.side = "r" // Правая половина поля
         if(p[1]) this.id = p[1] // id игрока
     }
 
     actOnHear(p) {
         const message = p[2]
-        this.controller.processServerMessage(message, this.flags, this.gameObjects)
+        this.controller.processServerMessage(message, this.flags, this.gameObjects, this.position)
         let command = this.controller.getServerCommand()
         if (command !== undefined) {
             this.socketSend(command.cmd, command.value)
@@ -153,6 +153,18 @@ class Agent {
 
             console.debug("Object: ", gameObject)
         }
+
+        const message = p[2]
+        console.info(position)
+        this.controller.processServerMessage(message, flags, gameObjects, position)
+
+        let command = this.controller.getServerCommand()
+
+        if (command !== undefined) {
+            this.socketSend(command.cmd, command.value)
+        }
+
+        console.log(command)
     }
 
     getIntersections(circle1, circle2) {

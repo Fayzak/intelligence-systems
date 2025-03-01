@@ -37,6 +37,21 @@ agent.setAngle(angle)
 
 require('./socket')(agent, teamName, VERSION) //Настройка сокета
 agent.socketSend("move", `${ally_x} ${ally_y}`) // Размещение игрока на поле
+// let agent1 = new Agent() // Создание экземпляра агента
+// require('./socket')(agent1, teamName, VERSION) //Настройка сокета
+// agent1.socketSend("move", `${-10} ${-10}`) // Размещение игрока на поле
+// let agent2 = new Agent() // Создание экземпляра агента
+// require('./socket')(agent2, teamName, VERSION) //Настройка сокета
+// agent2.socketSend("move", `${-10} ${-5}`) // Размещение игрока на поле
+// let agent3 = new Agent() // Создание экземпляра агента
+// require('./socket')(agent3, teamName, VERSION) //Настройка сокета
+// agent3.socketSend("move", `${-10} ${0}`) // Размещение игрока на поле
+// let agent4 = new Agent() // Создание экземпляра агента
+// require('./socket')(agent4, teamName, VERSION) //Настройка сокета
+// agent4.socketSend("move", `${-10} ${5}`) // Размещение игрока на поле
+// let agent5 = new Agent() // Создание экземпляра агента
+// require('./socket')(agent5, teamName, VERSION) //Настройка сокета
+// agent5.socketSend("move", `${-10} ${10}`) // Размещение игрока на поле
 
 // require('./socket')(enemyAgent, enemyTeamName, VERSION)
 // enemyAgent.socketSend("move", `${-enemy_x} ${-enemy_y}`)
