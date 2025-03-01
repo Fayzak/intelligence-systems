@@ -24,28 +24,44 @@ class Controller {
         let length = Object.keys(action).length
         let act = action["act"]
         let target = action["fl"]
+        let goal = undefined
         if (length >= 3) {
-            let goal = action["goal"]
+            goal = action["goal"]
         }
 
         switch (act) {
             case "flag":
-                let flag = flags.find(obj => obj.name.includes(target));
+                let flag = flags.find(obj => obj.name.includes(target))
                 if (!flag) {
-                    this.command = "turn"
+                    this.command = {cmd: "turn", value: "90"}
                 } else {
                     if (flag.d < 3) {
-                        this.command = "say" // чтобы остановиться (?)
+                        this.action_number += 1
                     } else {
-                        this.command = "move"
+                        this.command = {cmd: "move", value: "10"}
                     }
                 }
                 break
             case "kick":
-                this.command = "kick"
-                break
-            default:
-                this.command = "turn"
+                if (!goal) {
+                    console.info("Can't kick because don't have goal!")
+                    return
+                }
+                let ball = flags.find(obj => obj.name.includes(target))
+                let gate = flags.find(obj => obj.name.includes(goal))
+                if (!ball) {
+                    this.command = {cmd: "turn", value: "90"}
+                } else {
+                    if (ball.d < 0.5) {
+                        if (!gate) {
+                            this.command = {cmd: "kick", value: "10 45"}
+                        } else {
+                            this.command = {cmd: "kick", value: "100 0"}
+                        }
+                    } else {
+                        this.command = {cmd: "move", value: "10"}
+                    }
+                }
                 break
         }
     }
