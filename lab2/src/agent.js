@@ -70,6 +70,7 @@ class Agent {
         this.angle = 0;
 
         this.flags = undefined
+        this.gameObjects = undefined
         this.controller = new Controller()
     }
 
@@ -111,8 +112,11 @@ class Agent {
 
     actOnHear(p) {
         const message = p[2]
-        this.controller.processServerMessage(message, this.flags)
+        this.controller.processServerMessage(message, this.flags, this.gameObjects)
         let command = this.controller.getServerCommand()
+        if (command !== undefined) {
+            this.socketSend(command.cmd, command.value)
+        }
         console.log(command)
     }
 
@@ -122,6 +126,7 @@ class Agent {
         this.shuffle(flags)
 
         const gameObjects = this.getGameObjects(p)
+        this.gameObjects = gameObjects
 
         console.debug("Flags: ", flags)
         console.debug("Game objects: ", gameObjects)
