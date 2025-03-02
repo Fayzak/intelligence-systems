@@ -1,13 +1,13 @@
 require('./logging.js')('info')
 
+const Controller = require('./controller')
 const Agent = require('./agent') // Импорт агента
 const VERSION = 7 // Версия сервера
 
-let teamName = "Traktor" // Имя команды
-let agent = new Agent() // Создание экземпляра агента
+const teamName = "Traktor" // Имя команды
 
 let enemyTeamName = "Really"
-let enemyAgent = new Agent()
+// let enemyAgent = new Agent()
 
 // Функция для разбора именованных параметров
 function parseArgs(args) {
@@ -19,13 +19,10 @@ function parseArgs(args) {
         }
     })
     return result
-  }
+}
 
 // Получаем именованные параметры
 const args = parseArgs(process.argv)
-
-const ally_x = -15
-const ally_y = -10
 
 const enemy_x = 15
 const enemy_y = -10
@@ -33,10 +30,11 @@ const enemy_y = -10
 const x = args.x === undefined ? -15 : args.x
 const y = args.y === undefined ? -10 : args.y
 const angle = args.angle === undefined ? 45 : args.angle
-agent.setAngle(angle)
 
+let agent = new Agent() // Создание экземпляра агента
+agent.setController(new Controller())
 require('./socket')(agent, teamName, VERSION) //Настройка сокета
-agent.socketSend("move", `${ally_x} ${ally_y}`) // Размещение игрока на поле
+agent.move(x, y)
 // let agent1 = new Agent() // Создание экземпляра агента
 // require('./socket')(agent1, teamName, VERSION) //Настройка сокета
 // agent1.socketSend("move", `${-10} ${-10}`) // Размещение игрока на поле
