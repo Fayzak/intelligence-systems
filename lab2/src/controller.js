@@ -14,7 +14,7 @@ Searcher = {
         this.currentDirectionIndex = 0
     },
 
-    directions: [1, 72, -144, 216, 72, 144],
+    directions: [45, 45, -72 - 90, -72, -72, -72, -72],
     currentDirectionIndex: 0
 }
 
@@ -121,7 +121,7 @@ class Controller {
         }
         Searcher.reset()
 
-        if (Math.abs(direction) > 5 * (1 + 10 / distance)) {
+        if (Math.abs(direction) > 10 * (1 + 10 / distance)) {
             return ["turn", direction]
         }
 
