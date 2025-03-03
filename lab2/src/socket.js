@@ -1,16 +1,22 @@
-const dgram = require('dgram') // Модуль для аботы с UDP
+const dgram = require('dgram')
+
 module.exports = function(agent, teamName, version) {
-    // Создание сокета
+
     const socket = dgram.createSocket({type: 'udp4', reuseAddr: true})
-    agent.setSocket(socket) // Задание сокета для агента
-    socket.on('message', (msg, info) => {
-        agent.msgGot(msg) // Обработка полученного сообщения
+
+    agent.setSocket(socket)
+
+    socket.on('message', (message, info) => {
+        agent.recieveMessage(message)
     })
-    socket.sendMsg = function(msg) { // Отравка сообщения серверу
-        socket.send(Buffer.from(msg), 6000, 'localhost', (err, bytes) => {
-            if (err) throw err
+
+    socket.sendMessage = function(message) {
+        socket.send(Buffer.from(message), 6000, 'localhost', (error, bytes) => {
+            if (error) {
+                throw error
+            }
         })
     }
-    // Инициализация игрока на сервере (без параметра goalie)
-    socket.sendMsg(`(init ${teamName} (version ${version}))`)
+
+    socket.sendMessage(`(init ${teamName} (version ${version}))`)
 }

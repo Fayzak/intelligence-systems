@@ -1,86 +1,164 @@
+const Flags = require('./flags')
+const Utils = require('./utils')
+
+Searcher = {
+    getDirection() {
+        const nextDirection = this.directions[this.currentDirectionIndex]
+
+        this.currentDirectionIndex = (this.currentDirectionIndex + 1) % this.directions.length
+
+        return nextDirection
+    },
+
+    reset() {
+        this.currentDirectionIndex = 0
+    },
+
+    directions: [45, 45, -72 - 90, -72, -72, -72, -72],
+    currentDirectionIndex: 0
+}
+
 class Controller {
     constructor() {
         this.actions = [
-            // {act: "flag", fl: "frb"},
-            // {act: "flag", fl: "gl"},
-            // {act: "flag", fl: "fc"},
-            {act: "kick", fl: "b", goal: "gr"}
+            {action: "run", goal: "frt"},
+            {action: "run", goal: "frb"},
+            {action: "run", goal: "flb"},
+            {action: "run", goal: "flt"},
+            {action: "run", goal: "fc"},
+            {action: "kick", goal: "gr"}
         ]
-        this.action_number = 0
-        this.command = undefined
+
+        this.currentActionIndex = 0
     }
 
-    processServerMessage(msg, flags, gameObjects, position) {
-        // if (msg === "play_on") {
-        let current_action = this.actions[this.action_number]
-        this.createCommandToServer(current_action, flags, gameObjects, position)
-        // } else if (msg.includes("goal_")) {
-        //     this.action_number = 0
-        // }
-    }
+    getCommand(position, angle, flags, gameObjects) {
 
-    createCommandToServer(action, flags, gameObjects, position) {
-        console.info(position)
-        let length = Object.keys(action).length
-        let act = action["act"]
-        let target = action["fl"]
-        let goal = undefined
-        if (length >= 3) {
-            goal = action["goal"]
+        this.switchIfComplited(position, angle, flags, gameObjects)
+
+        const {action: action, ...actionParameters} = this.actions[this.currentActionIndex]
+
+        switch (action) {
+            case "run":
+
+                const visibleDestionation = flags.find(flag => flag.name === actionParameters["goal"])
+                const destination = Flags[actionParameters["goal"]]
+
+                return this.run(visibleDestionation, destination, position, angle)
+
+            case "kick":
+
+                const visibleGate = flags.find(flag => flag.name === actionParameters["goal"])
+                const gate = Flags[actionParameters["goal"]]
+                const ball = gameObjects.find(gameObject => gameObject.name === "b")
+
+                return this.kick(visibleGate, gate, ball, position, angle)
+
         }
 
-        switch (act) {
-            case "flag":
-                let flag = flags.find(obj => obj.name.includes(target))
-                if (!flag) {
-                    console.info("Can't find flag!")
-                    this.command = {cmd: "turn", value: "90"}
-                } else {
-                    if (flag.d < 3) {
-                        console.info("Flag is too close!")
-                        this.action_number += 1
-                    } else if (Math.abs(flag.angle) > 10) {
-                        console.info("Flag is too far!")
-                        this.command = {cmd: "turn", value: `${flag.angle}`}
-                    } else {
-                        console.info("Flag is good!")
-                        this.command = {cmd: "dash", value: "100"}
-                    }
+        return ["stay"]
+    }
+
+    switchIfComplited(position, angle, flags, gameObjects) {
+
+        const {action: action, ...actionParameters} = this.actions[this.currentActionIndex]
+
+        switch (action) {
+            case "run":
+
+                const visibleDestionation = flags.find(flag => flag.name === actionParameters["goal"])
+                const destination = Flags[actionParameters["goal"]]
+
+                if (this.checkRunComplited(visibleDestionation, destination, position, angle)) {
+                    this.currentActionIndex = (this.currentActionIndex + 1) % this.actions.length
                 }
+
                 break
             case "kick":
-                if (!goal) {
-                    console.info("Can't kick because don't have goal!")
-                    return
-                }
-                let ball = gameObjects.find(obj => obj.name.includes(target))
-                let gate = flags.find(obj => obj.name.includes(goal))
-                if (!ball) {
-                    this.command = {cmd: "turn", value: "90"}
-                } else {
-                    if (ball.d < 0.5) {
-                        if (!gate) {
-                            if (position.x > 0) {
-                                this.command = {cmd: "kick", value: "10 45"}
-                            } else {
-                                this.command = {cmd: "kick", value: "10 -45"}
-                            }
-                        } else {
-                            this.command = {cmd: "kick", value: `100 ${gate.angle}`}
-                        }
-                    } else if (Math.abs(ball.angle) > 10) {
-                        this.command = {cmd: "turn", value: `${ball.angle}`}
-                    } else {
-                        this.command = {cmd: "dash", value: "100"}
-                    }
-                }
+
                 break
+        }
+
+    }
+
+    getDirectionAndDistance(visibleDestionation, destination, position, angle) {
+
+        if (!position || !angle) {
+
+            if (!visibleDestionation) {
+                return [null, null]
+            }
+
+            return [visibleDestionation.angle, visibleDestionation.d]
+        }
+
+        const beta = Utils.calculateRelativeAngle(position, destination)
+        const direction = Utils.getAnglesDifference(beta, angle) 
+        const distance = Utils.distance(position, destination)
+
+        return [direction, distance]
+
+    }
+
+    checkRunComplited(visibleDestionation, destination, position, angle) {
+
+        const [direction, distance] = this.getDirectionAndDistance(visibleDestionation, destination, position, angle)
+
+        if (!direction || !distance) {
+            return false
+        }
+
+        return distance < 3
+
+    }
+
+    run(visibleDestionation, destination, position, angle, flags) {
+
+        const [direction, distance] = this.getDirectionAndDistance(visibleDestionation, destination, position, angle)
+
+        if (!direction || !distance) {
+            return ["turn", Searcher.getDirection()]
+        }
+        Searcher.reset()
+
+        if (Math.abs(direction) > 10 * (1 + 10 / distance)) {
+            return ["turn", direction]
+        }
+
+        return ["dash", 100]
+
+    }
+
+    kick(visibleGate, gate, ball, position, angle) {
+
+        if (!ball) {
+            return ["turn", Searcher.getDirection()]
+        }
+        Searcher.reset()
+
+        if (ball.d < 1) {
+            const [gateDirection, gateDistance] = this.getDirectionAndDistance(visibleGate, gate, position, angle)
+
+            if (!gateDirection || !gateDistance) {
+                if (position && position.x > 0) {
+                    return ["kick", 10, 45] 
+                }
+                return ["kick", 10, -45] 
+            }
+
+            return ["kick", 100, gateDirection]
+        }
+
+        return this.run(ball, ball, position, angle)
+
+    }
+
+    onHear(tick, sender, message) {
+        if (message.includes("goal") && this.actions[this.currentActionIndex].action === "kick") {
+            this.currentActionIndex = (this.currentActionIndex + 1) % this.actions.length
         }
     }
 
-    getServerCommand() {
-        return this.command
-    }
 }
 
-module.exports = Controller // Экспорт контроллера
+module.exports = Controller
