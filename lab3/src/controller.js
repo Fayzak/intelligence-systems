@@ -35,10 +35,10 @@ class Controller {
     }
 
     getCommand(position, angle, flags, gameObjects) {
-
         let manager = new Manager(position, angle, flags, gameObjects)
         let act = manager.getAction(UniversalDT, manager)
         console.info(act)
+        return act
 
         this.switchIfComplited(position, angle, flags, gameObjects)
 

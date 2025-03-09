@@ -21,7 +21,7 @@ const DT = {
     },
     rotate: {
         exec(mgr, state) {
-            state.command = {n: "turn", v: "90"}
+            state.command = ["turn", "90"]
         },
         next: "sendCommand",
     },
@@ -49,13 +49,13 @@ const DT = {
     },
     rotateToGoal: {
         exec(mgr, state) {
-            state.command = {n: "turn", v: mgr.getAngle(state.action.fl)}
+            state.command = ["turn", mgr.getAngle(state.action.fl)]
         },
         next: "sendCommand",
     },
     runToGoal: {
         exec(mgr, state) {
-            state.command = {n: "dash", v: 100}
+            state.command = ["dash", 100]
         },
         next: "sendCommand",
     },
@@ -74,13 +74,13 @@ const DT = {
     },
     ballGoalVisible: {
         exec(mgr, state) {
-            state.command = {n: KI, v: `100 ${mgr.getAngle(state.action.goal)}`}
+            state.command = [KI, `100 ${mgr.getAngle(state.action.goal)}`]
         },
         next: "sendCommand",
     },
     ballGoalInvisible: {
         exec(mgr, state) {
-            state.command = {n: KI, v: "10 45"}
+            state.command = [KI, "10 45"]
         },
         next: "sendCommand",
     }
@@ -115,7 +115,7 @@ const UniversalDT = {
     },
     followLeader: {
         exec(mgr, state) {
-            state.command = {n: "turn", v: "30"}
+            state.command = ["turn", "30"]
         },
         next: "sendCommand",
     },
@@ -131,13 +131,13 @@ const UniversalDT = {
     },
     gentlyTurn: {
         exec(mgr, state) {
-            state.command = {n: "turn", v: `${state.angle}`}
+            state.command = ["turn", `${state.angle}`]
         },
         next: "sendCommand",
     },
     sharplyDash: {
         exec(mgr, state) {
-            state.command = {n: "dash", v: "80"}
+            state.command = ["dash", "80"]
         },
         next: "sendCommand",
     },
@@ -148,7 +148,7 @@ const UniversalDT = {
     },
     sharplyTurn: {
         exec(mgr, state) {
-            state.command = {n: "turn", v: `${state.angle-30}`}
+            state.command = ["turn", `${state.angle-30}`]
         },
         next: "sendCommand",
     },
@@ -159,13 +159,13 @@ const UniversalDT = {
     },
     slowlyDash: {
         exec(mgr, state) {
-            state.command = {n: "dash", v: "20"}
+            state.command = ["dash", "20"]
         },
         next: "sendCommand",
     },
     quicklyDash: {
         exec(mgr, state) {
-            state.command = {n: "dash", v: "40"}
+            state.command = ["dash", "40"]
         },
         next: "sendCommand",
     }

@@ -7,6 +7,7 @@ class Manager {
         this.angle = angle
         this.flags = flags
         this.gameObjects = gameObjects
+        this.leader = undefined
     }
 
     getAction(dt, mgr) {
@@ -77,12 +78,14 @@ class Manager {
     }
 
     getVisible(goal) {
-        console.info(goal)
-        console.info(this.flags.find(flag => flag.name === goal) || this.gameObjects.find(gameObject => gameObject.name === goal))
         return this.flags.find(flag => flag.name === goal) || this.gameObjects.find(gameObject => gameObject.name === goal)
     }
 
     getLeaderVisible() {
+        if (this.leader) return true
+        let findedLeader = this.gameObjects.find(gameObject => gameObject.name.includes("p"))
+        if (!findedLeader) return false
+        this.leader = findedLeader
         return true
     }
 }
