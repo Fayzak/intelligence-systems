@@ -49,13 +49,13 @@ const DT = {
     },
     rotateToGoal: {
         exec(mgr, state) {
-            state.command = ["turn", mgr.getAngle(state.action.fl)]
+            state.command = ["turn", `${mgr.getAngle(state.action.fl)}`]
         },
         next: "sendCommand",
     },
     runToGoal: {
         exec(mgr, state) {
-            state.command = ["dash", 100]
+            state.command = ["dash", "100"]
         },
         next: "sendCommand",
     },
@@ -88,17 +88,14 @@ const DT = {
 
 const UniversalDT = {
     state: {
-        next: 0,
-        sequence: [{act: FL, fl: "frt"}, {act: FL, fl: "frb"},
-            {act: KI, fl: "b", goal: "gr"}],
         dist: 0,
         angle: 0,
-        command: null
+        command: null,
     },
     root: {
         condition: (mgr, state) => mgr.getLeaderVisible(),
-        trueCond: "goToDT",
-        falseCond: "goToUniversalDT",
+        trueCond: "goToUniversalDT",
+        falseCond: "goToDT",
     },
     sendCommand: {
         command: (mgr, state) => state.command
@@ -109,6 +106,13 @@ const UniversalDT = {
         }
     },
     goToUniversalDT: {
+        exec(mgr, state) {
+            state.dist = mgr.leader.dist
+            state.angle = mgr.leader.angle
+        },
+        next: "startUniversalDT",
+    },
+    startUniversalDT: {
         condition: (mgr, state) => state.dist < 1 && Math.abs(state.angle) < 40,
         trueCond: "followLeader",
         falseCond: "farDistance",
@@ -119,7 +123,7 @@ const UniversalDT = {
         },
         next: "sendCommand",
     },
-    farDistanceToLeader: {
+    farDistance: {
         condition: (mgr, state) => state.dist > 10,
         trueCond: "nearAngle",
         falseCond: "farAngle",

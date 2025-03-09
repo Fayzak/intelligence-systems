@@ -13,9 +13,8 @@ class Manager {
     getAction(dt, mgr) {
         function execute(dt, title) {
             const action = dt[title]
-            console.info(title)
             if (typeof action.goto == "function") {
-                let goto_dt = action.goto()
+                let goto_dt = action.goto(dt.state)
                 return execute(goto_dt, "root")
             }
             if (typeof action.exec == "function") {
@@ -82,7 +81,6 @@ class Manager {
     }
 
     getLeaderVisible() {
-        if (this.leader) return true
         let findedLeader = this.gameObjects.find(gameObject => gameObject.name.includes("p"))
         if (!findedLeader) return false
         this.leader = findedLeader
