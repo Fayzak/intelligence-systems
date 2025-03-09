@@ -1,5 +1,7 @@
 const Flags = require('./flags')
 const Utils = require('./utils')
+const UniversalDT = require('./decision_trees')
+const Manager = require('./manager')
 
 Searcher = {
     getDirection() {
@@ -23,9 +25,9 @@ class Controller {
         this.actions = [
             {action: "run", goal: "frt"},
             {action: "run", goal: "frb"},
-            {action: "run", goal: "flb"},
-            {action: "run", goal: "flt"},
-            {action: "run", goal: "fc"},
+            // {action: "run", goal: "flb"},
+            // {action: "run", goal: "flt"},
+            // {action: "run", goal: "fc"},
             {action: "kick", goal: "gr"}
         ]
 
@@ -33,6 +35,10 @@ class Controller {
     }
 
     getCommand(position, angle, flags, gameObjects) {
+
+        let manager = new Manager(position, angle, flags, gameObjects)
+        let act = manager.getAction(UniversalDT, manager)
+        console.info(act)
 
         this.switchIfComplited(position, angle, flags, gameObjects)
 

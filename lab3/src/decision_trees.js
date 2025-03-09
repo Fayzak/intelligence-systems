@@ -3,7 +3,7 @@ const FL = "flag", KI = "kick"
 const DT = {
     state: {
         next: 0,
-        sequence: [{act: FL, fl: "frb"}, {act: FL, fl: "gl"},
+        sequence: [{act: FL, fl: "frt"}, {act: FL, fl: "frb"},
             {act: KI, fl: "b", goal: "gr"}],
         command: null
     },
@@ -88,6 +88,9 @@ const DT = {
 
 const UniversalDT = {
     state: {
+        next: 0,
+        sequence: [{act: FL, fl: "frt"}, {act: FL, fl: "frb"},
+            {act: KI, fl: "b", goal: "gr"}],
         dist: 0,
         angle: 0,
         command: null
@@ -101,10 +104,9 @@ const UniversalDT = {
         command: (mgr, state) => state.command
     },
     goToDT: {
-        exec(mgr, state) { 
-            DT.root.exec(mgr, state)
-        },
-        next: "sendCommand",
+        goto() { 
+            return DT
+        }
     },
     goToUniversalDT: {
         condition: (mgr, state) => state.dist < 1 && Math.abs(state.angle) < 40,
@@ -168,3 +170,5 @@ const UniversalDT = {
         next: "sendCommand",
     }
 }
+
+module.exports = UniversalDT

@@ -35,6 +35,16 @@ let agent = new Agent() // Создание экземпляра агента
 agent.setController(new Controller())
 require('./socket')(agent, teamName, VERSION) //Настройка сокета
 agent.move(x, y)
+
+// let agent1 = new Agent() // Создание экземпляра агента
+// agent1.setController(new Controller())
+// require('./socket')(agent1, teamName, VERSION) //Настройка сокета
+// agent1.move(x+5, y+5)
+
+// let agent2 = new Agent() // Создание экземпляра агента
+// agent2.setController(new Controller())
+// require('./socket')(agent2, teamName, VERSION) //Настройка сокета
+// agent2.move(x-5, y-5)
 // let agent1 = new Agent() // Создание экземпляра агента
 // require('./socket')(agent1, teamName, VERSION) //Настройка сокета
 // agent1.socketSend("move", `${-10} ${-10}`) // Размещение игрока на поле
