@@ -34,7 +34,8 @@ class Agent {
         this.assumedPosition = null
         this.assumedAngle = 0
 
-        this.controller = null
+        // this.controller = null
+        this.decisionTree = null
 
         this.gameState = "before_kick_off" 
 
@@ -82,8 +83,12 @@ class Agent {
         this.assumedAngle = angle
     }
 
-    setController(controller) {
-        this.controller = controller
+    // setController(controller) {
+    //     this.controller = controller
+    // }
+
+    setDecisionTree(decisionTree) {
+        this.decisionTree = decisionTree
     }
 
     recieveMessage(message) {
@@ -128,7 +133,7 @@ class Agent {
         console.info("HEAR", parameters)
         const [tick, sender, message] = parameters
 
-        this.controller.onHear(tick, sender, message)
+        // this.controller.onHear(tick, sender, message)
     }
 
     getFlags(p) {
@@ -212,9 +217,10 @@ class Agent {
             this.setAngle(angle)
         }
 
-        console.info("SEE", position, angle, gameObjects)
+        console.info("SEE", position, angle, flags, gameObjects)
 
-        const [command, ...commandParameters] = this.controller.getCommand(position, angle, flags, gameObjects)
+        // const [command, ...commandParameters] = this.controller.getCommand(position, angle, flags, gameObjects)
+        const [command, ...commandParameters] = this.decisionTree.getCommand(position, angle, flags, gameObjects)
 
         switch (command) {
             case "move":
