@@ -2,7 +2,12 @@ const Flags = require('./flags')
 const Utils = require('./utils')
 
 class Manager {
-    constructor(position, angle, flags, gameObjects) {
+    constructor(
+        teamName, id,
+        position, angle, flags, gameObjects
+    ) {
+        this.teamName = teamName
+        this.id = id
         this.position = position
         this.angle = angle
         this.flags = flags
@@ -80,11 +85,18 @@ class Manager {
         return this.flags.find(flag => flag.name === goal) || this.gameObjects.find(gameObject => gameObject.name === goal)
     }
 
-    getLeaderVisible() {
-        let findedLeader = this.gameObjects.find(gameObject => gameObject.name.includes("p"))
-        if (!findedLeader) return false
-        this.leader = findedLeader
-        return true
+    getLeaderVisible(state) {
+        let findedLeader = this.gameObjects.find(gameObject => gameObject.name.includes(`p"${this.teamName}"`))
+        if (findedLeader !== undefined) {
+            if (state.leader !== undefined) {
+                if (state.leader.name === `p"${this.teamName}"${this.id}`) {
+                    return false
+                }
+            }
+            this.leader = findedLeader
+            return true
+        }
+        return false
     }
 }
 

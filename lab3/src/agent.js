@@ -6,7 +6,9 @@ const readline = require('readline')
 
 class Agent {
 
-    constructor() {
+    constructor(teamName) {
+
+        this.teamName = teamName
 
         readline.createInterface({
             input: process.stdin,
@@ -214,7 +216,10 @@ class Agent {
 
         console.info("SEE", position, angle, gameObjects)
 
-        const [command, ...commandParameters] = this.controller.getCommand(position, angle, flags, gameObjects)
+        const [command, ...commandParameters] = this.controller.getCommand(
+            this.teamName, this.id,
+            position, angle, flags, gameObjects
+        )
 
         switch (command) {
             case "move":

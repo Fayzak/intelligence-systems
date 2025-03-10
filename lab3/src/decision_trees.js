@@ -91,9 +91,10 @@ const UniversalDT = {
         dist: 0,
         angle: 0,
         command: null,
+        leader: undefined,
     },
     root: {
-        condition: (mgr, state) => mgr.getLeaderVisible(),
+        condition: (mgr, state) => mgr.getLeaderVisible(state),
         trueCond: "goToUniversalDT",
         falseCond: "goToDT",
     },
@@ -107,7 +108,8 @@ const UniversalDT = {
     },
     goToUniversalDT: {
         exec(mgr, state) {
-            state.dist = mgr.leader.dist
+            state.leader = mgr.leader
+            state.dist = mgr.leader.d
             state.angle = mgr.leader.angle
         },
         next: "startUniversalDT",

@@ -34,8 +34,14 @@ class Controller {
         this.currentActionIndex = 0
     }
 
-    getCommand(position, angle, flags, gameObjects) {
-        let manager = new Manager(position, angle, flags, gameObjects)
+    getCommand(
+        teamName, id,
+        position, angle, flags, gameObjects
+    ) {
+        let manager = new Manager(
+            teamName, id,
+            position, angle, flags, gameObjects
+        )
         let act = manager.getAction(UniversalDT, manager)
         console.info(act)
         return act
