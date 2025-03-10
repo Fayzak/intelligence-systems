@@ -61,6 +61,26 @@ class Manager {
         return direction
     }
 
+    getGameObjectAngle(gameObject) {
+        const destination = this.gameObjects.find(object => object.name === gameObject)
+
+        if (!this.position || !this.angle) {
+
+            if (!destination) {
+                return -999
+            }
+
+            return destination.angle
+        }
+
+        if (!destination) return -999
+
+        const beta = Utils.calculateRelativeAngle(this.position, destination)
+        const direction = Utils.getAnglesDifference(beta, this.angle)
+
+        return direction
+    }
+
     getDistance(flag) {
         console.info("DIST", flag)
         const visibleDestionation = this.flags.find(fl => fl.name === flag)

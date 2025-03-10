@@ -55,7 +55,7 @@ const DT = {
     },
     runToGoal: {
         exec(mgr, state) {
-            state.command = ["dash", "100"]
+            state.command = ["dash", "50"]
         },
         next: "sendCommand",
     },
@@ -63,7 +63,7 @@ const DT = {
         command: (mgr, state) => state.command
     },
     ballSeek: {
-        condition: (mgr, state) => mgr.getDistance(state.action.fl) < 0.5,
+        condition: (mgr, state) => mgr.getDistance(state.action.fl) < 1,
         trueCond: "closeBall",
         falseCond: "farGoal",
     },
@@ -74,13 +74,13 @@ const DT = {
     },
     ballGoalVisible: {
         exec(mgr, state) {
-            state.command = [KI, `100 ${mgr.getAngle(state.action.goal)}`]
+            state.command = [KI, "100", `${mgr.getGameObjectAngle(state.action.goal)}`]
         },
         next: "sendCommand",
     },
     ballGoalInvisible: {
         exec(mgr, state) {
-            state.command = [KI, "10 45"]
+            state.command = [KI, "10", "45"]
         },
         next: "sendCommand",
     }
@@ -148,7 +148,7 @@ const UniversalDT = {
         next: "sendCommand",
     },
     farAngle: {
-        condition: (mgr, state) => state.angle > 40 || state.angle < 25,
+        condition: (mgr, state) => Math.abs(state.angle) > 40 || Math.abs(state.angle) < 25,
         trueCond: "sharplyTurn",
         falseCond: "closeLeader",
     },

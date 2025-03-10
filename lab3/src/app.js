@@ -41,14 +41,14 @@ setTimeout(() => undefined, 1000)
 let agent1 = new Agent(teamName) // Создание экземпляра агента
 agent1.setController(new Controller())
 require('./socket')(agent1, teamName, VERSION) //Настройка сокета
-agent1.move(x+5, y+1)
+agent1.move(x-5, y+2)
 
 setTimeout(() => undefined, 1000)
 
 let agent2 = new Agent() // Создание экземпляра агента
 agent2.setController(new Controller())
 require('./socket')(agent2, teamName, VERSION) //Настройка сокета
-agent2.move(x+5, y-1)
+agent2.move(x-5, y-2)
 // let agent1 = new Agent() // Создание экземпляра агента
 // require('./socket')(agent1, teamName, VERSION) //Настройка сокета
 // agent1.socketSend("move", `${-10} ${-10}`) // Размещение игрока на поле
