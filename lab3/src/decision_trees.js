@@ -31,7 +31,7 @@ const DT = {
         falseCond: "ballSeek",
     },
     flagSeek: {
-        condition: (mgr, state) => 3 > mgr.getDistance(state.action.fl),
+        condition: (mgr, state) => mgr.getDistance(state.action.fl) < 3,
         trueCond: "closeFlag",
         falseCond: "farGoal",
     },
@@ -63,7 +63,7 @@ const DT = {
         command: (mgr, state) => state.command
     },
     ballSeek: {
-        condition: (mgr, state) => 0.5 > mgr.getDistance(state.action.fl),
+        condition: (mgr, state) => mgr.getDistance(state.action.fl) < 0.5,
         trueCond: "closeBall",
         falseCond: "farGoal",
     },

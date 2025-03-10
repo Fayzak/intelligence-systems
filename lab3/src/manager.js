@@ -47,13 +47,13 @@ class Manager {
         if (!this.position || !this.angle) {
 
             if (!visibleDestionation) {
-                return null
+                return -999
             }
 
             return visibleDestionation.angle
         }
 
-        if (!destination) return null
+        if (!destination) return -999
 
         const beta = Utils.calculateRelativeAngle(this.position, destination)
         const direction = Utils.getAnglesDifference(beta, this.angle)
@@ -62,19 +62,22 @@ class Manager {
     }
 
     getDistance(flag) {
+        console.info("DIST", flag)
         const visibleDestionation = this.flags.find(fl => fl.name === flag)
         const destination = Flags[flag]
+        console.info("visdist", visibleDestionation)
+        console.info("dest", destination)
 
         if (!this.position || !this.angle) {
 
             if (!visibleDestionation) {
-                return null
+                return 999
             }
 
             return visibleDestionation.d
         }
 
-        if (!destination) return null
+        if (!destination) return 999
 
         const distance = Utils.distance(this.position, destination)
 
