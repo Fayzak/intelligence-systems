@@ -104,6 +104,25 @@ class Manager {
         return distance
     }
 
+    getGameObjectDistance(gameObject) {
+        const destination = this.gameObjects.find(object => object.name === gameObject)
+
+        if (!this.position || !this.angle) {
+
+            if (!destination) {
+                return 999
+            }
+
+            return destination.d
+        }
+
+        if (!destination) return 999
+
+        const distance = Utils.distance(this.position, destination)
+
+        return distance
+    }
+
     getVisible(goal) {
         return this.flags.find(flag => flag.name === goal) || this.gameObjects.find(gameObject => gameObject.name === goal)
     }

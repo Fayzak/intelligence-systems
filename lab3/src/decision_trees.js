@@ -43,13 +43,13 @@ const DT = {
         next: "rootNext",
     },
     farGoal: {
-        condition: (mgr, state) => mgr.getAngle(state.action.fl) > 4,
+        condition: (mgr, state) => mgr.getGameObjectAngle(state.action.fl) > 4,
         trueCond: "rotateToGoal",
         falseCond: "runToGoal",
     },
     rotateToGoal: {
         exec(mgr, state) {
-            state.command = ["turn", `${mgr.getAngle(state.action.fl)}`]
+            state.command = ["turn", `${mgr.getGameObjectAngle(state.action.fl)}`]
         },
         next: "sendCommand",
     },
@@ -63,7 +63,7 @@ const DT = {
         command: (mgr, state) => state.command
     },
     ballSeek: {
-        condition: (mgr, state) => mgr.getDistance(state.action.fl) < 1,
+        condition: (mgr, state) => mgr.getGameObjectDistance(state.action.fl) < 1,
         trueCond: "closeBall",
         falseCond: "farGoal",
     },
