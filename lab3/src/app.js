@@ -1,6 +1,9 @@
 require('./logging.js')('info')
 
-const Controller = require('./controller')
+// const Controller = require('./controller')
+const DecisionTree = require('./deсision_trees')
+const run_nodes = require('./run_decision_tree.js')
+
 const Agent = require('./agent') // Импорт агента
 const VERSION = 7 // Версия сервера
 
@@ -31,8 +34,16 @@ const x = args.x === undefined ? -15 : args.x
 const y = args.y === undefined ? -10 : args.y
 const angle = args.angle === undefined ? 45 : args.angle
 
-let agent = new Agent(teamName) // Создание экземпляра агента
-agent.setController(new Controller())
+let agent = new Agent() // Создание экземпляра агента
+// agent.setController(new Controller())
+agent.setDecisionTree(new DecisionTree(run_nodes, [
+            {action: "run", goal: "frt"},
+            {action: "run", goal: "frb"},
+            {action: "run", goal: "flb"},
+            {action: "run", goal: "flt"},
+            {action: "run", goal: "fc"},
+            // {action: "kick", goal: "gr"}
+]))
 require('./socket')(agent, teamName, VERSION) //Настройка сокета
 agent.move(x, y)
 
