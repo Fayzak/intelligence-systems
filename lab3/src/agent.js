@@ -6,9 +6,8 @@ const readline = require('readline')
 
 class Agent {
 
-    constructor(teamName) {
+    constructor() {
 
-        this.teamName = teamName
 
         readline.createInterface({
             input: process.stdin,
@@ -32,6 +31,8 @@ class Agent {
 
         this.side = null
         this.id = null
+
+        this.teamName = null
 
         this.assumedPosition = null
         this.assumedAngle = 0
@@ -74,6 +75,10 @@ class Agent {
 
     setId(id) {
         this.id = id
+    }
+
+    setTeamName(teamName) {
+        this.teamName = teamName
     }
 
     setPosition(position) {
@@ -216,10 +221,16 @@ class Agent {
 
         console.info("SEE", position, angle, gameObjects)
 
-        const [command, ...commandParameters] = this.controller.getCommand(
-            this.teamName, this.id,
-            position, angle, flags, gameObjects
-        )
+        const agentState = {
+            teamName: this.teamName,
+            id: this.id,
+            position,
+            angle,
+            flags,
+            gameObjects
+        }
+
+        const [command, ...commandParameters] = this.controller.getCommand(agentState)
 
         switch (command) {
             case "move":

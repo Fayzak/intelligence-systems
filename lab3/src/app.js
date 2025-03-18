@@ -1,6 +1,9 @@
 require('./logging.js')('info')
 
 const Controller = require('./controller')
+// const DecisionTree = require('./deсision_trees')
+// const run_nodes = require('./run_decision_tree.js')
+
 const Agent = require('./agent') // Импорт агента
 const VERSION = 7 // Версия сервера
 
@@ -31,20 +34,47 @@ const x = args.x === undefined ? -15 : args.x
 const y = args.y === undefined ? -10 : args.y
 const angle = args.angle === undefined ? 45 : args.angle
 
-let agent = new Agent(teamName) // Создание экземпляра агента
-agent.setController(new Controller())
+let agent = new Agent() // Создание экземпляра агента
+agent.setController(new Controller([
+    {action: "define_position"}
+]))
+agent.setTeamName(teamName)
 require('./socket')(agent, teamName, VERSION) //Настройка сокета
 agent.move(x, y)
 
-setTimeout(() => undefined, 1000)
+let agent2 = new Agent() // Создание экземпляра агента
+agent2.setController(new Controller([
+    {action: "define_position"}
+]))
+agent2.setTeamName(teamName)
+require('./socket')(agent2, teamName, VERSION) //Настройка сокета
+agent2.move(x - 10, y + 2)
 
-let agent1 = new Agent(teamName) // Создание экземпляра агента
-agent1.setController(new Controller())
-require('./socket')(agent1, teamName, VERSION) //Настройка сокета
-agent1.move(x-5, y+2)
+let agent3 = new Agent() // Создание экземпляра агента
+agent3.setController(new Controller([
+    {action: "define_position"}
+]))
+agent3.setTeamName(teamName)
+require('./socket')(agent3, teamName, VERSION) //Настройка сокета
+agent3.move(x - 10, y - 2)
+
+let agent4 = new Agent() // Создание экземпляра агента
+agent4.setController(new Controller([
+    {action: "defend_gate", target: "gr"}
+]))
+agent4.setTeamName("enemy")
+require('./socket')(agent4, "enemy", VERSION, true) //Настройка сокета
+agent4.move(x - 40, 0)
 
 // setTimeout(() => undefined, 1000)
-
+//
+// let agent1 = new Agent(teamName) // Создание экземпляра агента
+// agent1.setController(new Controller())
+// require('./socket')(agent1, teamName, VERSION) //Настройка сокета
+// agent1.move(x-5, y+2)
+//
+// setTimeout(() => undefined, 1000)
+//
 // let agent2 = new Agent() // Создание экземпляра агента
 // agent2.setController(new Controller())
 // require('./socket')(agent2, teamName, VERSION) //Настройка сокета
