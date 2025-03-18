@@ -6,9 +6,8 @@ const readline = require('readline')
 
 class Agent {
 
-    constructor(teamName) {
+    constructor() {
 
-        this.teamName = teamName
 
         readline.createInterface({
             input: process.stdin,
@@ -33,11 +32,12 @@ class Agent {
         this.side = null
         this.id = null
 
+        this.teamName = null
+
         this.assumedPosition = null
         this.assumedAngle = 0
 
-        // this.controller = null
-        this.decisionTree = null
+        this.controller = null
 
         this.gameState = "before_kick_off" 
 
@@ -77,6 +77,10 @@ class Agent {
         this.id = id
     }
 
+    setTeamName(teamName) {
+        this.teamName = teamName
+    }
+
     setPosition(position) {
         this.assumedPosition = position
     }
@@ -85,12 +89,8 @@ class Agent {
         this.assumedAngle = angle
     }
 
-    // setController(controller) {
-    //     this.controller = controller
-    // }
-
-    setDecisionTree(decisionTree) {
-        this.decisionTree = decisionTree
+    setController(controller) {
+        this.controller = controller
     }
 
     recieveMessage(message) {
@@ -135,7 +135,7 @@ class Agent {
         console.info("HEAR", parameters)
         const [tick, sender, message] = parameters
 
-        // this.controller.onHear(tick, sender, message)
+        this.controller.onHear(tick, sender, message)
     }
 
     getFlags(p) {
@@ -221,8 +221,16 @@ class Agent {
 
         console.info("SEE", position, angle, flags, gameObjects)
 
-        // const [command, ...commandParameters] = this.controller.getCommand(position, angle, flags, gameObjects)
-        const [command, ...commandParameters] = this.decisionTree.getCommand(position, angle, flags, gameObjects)
+        const agentState = {
+            teamName: this.teamName,
+            id: this.id,
+            position,
+            angle,
+            flags,
+            gameObjects
+        }
+
+        const [command, ...commandParameters] = this.controller.getCommand(agentState)
 
         switch (command) {
             case "move":

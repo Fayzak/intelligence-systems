@@ -1,6 +1,6 @@
 const dgram = require('dgram')
 
-module.exports = function(agent, teamName, version) {
+module.exports = function(agent, teamName, version, isGoalie) {
 
     const socket = dgram.createSocket({type: 'udp4', reuseAddr: true})
 
@@ -18,5 +18,10 @@ module.exports = function(agent, teamName, version) {
         })
     }
 
-    socket.sendMessage(`(init ${teamName} (version ${version}))`)
+    if (!isGoalie) {
+        socket.sendMessage(`(init ${teamName} (version ${version}))`)
+    } else {
+        socket.sendMessage(`(init ${teamName} (version ${version}) (goalie))`)
+    }
+
 }
