@@ -1,7 +1,8 @@
 const Flags = require('./flags')
 const Utils = require('./utils')
-const UniversalDT = require('./decision_trees')
-const Manager = require('./manager')
+const DTProcessor = require('./dt_processor.js')
+// const UniversalDT = require('./decision_trees')
+// const Manager = require('./manager')
 
 Searcher = {
     getDirection() {
@@ -20,55 +21,110 @@ Searcher = {
     currentDirectionIndex: 0
 }
 
+StateMachine = {
+    currentAction: "definePosition",
+
+    getAction: () => {
+        return this[this.currentAction].action
+    },
+
+    definePosition: {
+        action: {action: "define_position"},
+        onResult: (result) => {
+
+        }
+    }
+}
+
 class Controller {
-    constructor() {
-        this.actions = [
-            {action: "run", goal: "frt"},
-            {action: "run", goal: "frb"},
-            // {action: "run", goal: "flb"},
-            // {action: "run", goal: "flt"},
-            // {action: "run", goal: "fc"},
-            {action: "kick", goal: "gr"}
-        ]
+    constructor(actions) {
+        this.actions = actions
+        // this.actions = [
+        //     // {action: "run", target: "frt"},
+        //     // {action: "run", target: "frb"},
+        //     // {action: "run", target: "flb"},
+        //     // {action: "run", target: "flt"},
+        //     // {action: "run", target: "fc"},
+        //     {action: "kick", target: "gr"}
+        // ]
 
         this.currentActionIndex = 0
     }
 
-    getCommand(
-        teamName, id,
-        position, angle, flags, gameObjects
-    ) {
-        let manager = new Manager(
-            teamName, id,
-            position, angle, flags, gameObjects
-        )
-        let act = manager.getAction(UniversalDT, manager)
-        console.info(act)
-        return act
-
-        this.switchIfComplited(position, angle, flags, gameObjects)
-
+    getCommand(agentState) {
         const {action: action, ...actionParameters} = this.actions[this.currentActionIndex]
+
+        let result = null
 
         switch (action) {
             case "run":
 
-                const visibleDestionation = flags.find(flag => flag.name === actionParameters["goal"])
-                const destination = Flags[actionParameters["goal"]]
+                result = DTProcessor.run.execute(agentState, actionParameters)
 
-                return this.run(visibleDestionation, destination, position, angle)
+                const targetDistance = result.getResult()
+
+                if (targetDistance && targetDistance <= 3) {
+                    this.nextAction()
+                }
+
+                return result.getCommand()
 
             case "kick":
 
-                const visibleGate = flags.find(flag => flag.name === actionParameters["goal"])
-                const gate = Flags[actionParameters["goal"]]
-                const ball = gameObjects.find(gameObject => gameObject.name === "b")
+                result = DTProcessor.kick.execute(agentState, actionParameters)
 
-                return this.kick(visibleGate, gate, ball, position, angle)
+                return result.getCommand()
 
+            case "follow":
+
+                result = DTProcessor.follow.execute(agentState, actionParameters)
+
+                return result.getCommand()
+
+            case "define_position":
+
+                result = DTProcessor.definePosition.execute(agentState, actionParameters)
+
+                const {isLeader, leaderName, side} = result.getResult()
+                console.info(isLeader, leaderName, side)
+
+                if (isLeader) {
+                    this.actions = [
+                        // {action: "run", target: "frt"},
+                        // {action: "run", target: "flb"},
+                        // {action: "run", target: "flt"},
+                        {action: "run", target: "fc"},
+                        {action: "run", target: "fplc"},
+                        // {action: "kick", target: "gr"}
+                    ]
+                } else {
+                    this.actions = [
+                        {action: "send_pass", target: leaderName, side: side}, // Как определить, когда follow а когда send_pass?
+                    ]
+                }
+
+                break
+
+            case "defend_gate":
+
+                result = DTProcessor.defendGate.execute(agentState, actionParameters)
+                console.info(result.getCommand())
+
+                return result.getCommand()
+            
+            case "send_pass":
+
+                result = DTProcessor.sendPass.execute(agentState, actionParameters)
+                console.info(`SEND_PASS - ${result.getCommand()}`)
+
+                return result.getCommand()
         }
 
         return ["stay"]
+    }
+
+    nextAction() {
+        this.currentActionIndex = (this.currentActionIndex + 1) % this.actions.length
     }
 
     switchIfComplited(position, angle, flags, gameObjects) {
