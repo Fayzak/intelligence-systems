@@ -16,7 +16,9 @@ module.exports = {
             agent: {
                 position: agentState.position,
                 angle: agentState.angle
-            }
+            },
+            // isPassed: agentState.isPassed,
+            // isSaidGo: agentState.isSaidGo,
         }
     },
 
@@ -229,11 +231,17 @@ module.exports = {
     passToScorer: {
         terminate: true,
         getCommand: () => {
-            // Как еще забивающему сказать "go"?
+            // if (IterationState.isSaidGo) {
+            //     return ["stay"]
+            // }
+            // if (IterationState.isPassed) {
+            //     IterationState.isSaidGo = true
+            //     return ["say", "go"]
+            // }
+            // IterationState.isPassed = true
             return ["kick", 70, IterationState.scorer.visible.angle]
         },
         getResult: () => {
-            ret
         } 
     },
 

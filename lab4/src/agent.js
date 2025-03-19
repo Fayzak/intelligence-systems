@@ -65,6 +65,10 @@ class Agent {
         this.socketSend("kick", `${power} ${angle}`)
     }
 
+    say(message) {
+        this.socketSend("say", `${message}`)
+    }
+
     setSocket(socket) {
         this.socket = socket
     }
@@ -244,6 +248,9 @@ class Agent {
                 break
             case "kick":
                 this.kick(...commandParameters)
+                break
+            case "say":
+                this.say(...commandParameters)
                 break
             case "stay":
                 break
