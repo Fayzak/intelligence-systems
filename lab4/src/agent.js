@@ -41,6 +41,11 @@ class Agent {
 
         this.gameState = "before_kick_off" 
 
+        this.isPassed = false
+        this.isSaidGo = false
+        this.isHearedGo = false
+
+        this.agentHearedState = undefined
     }
 
     socketSend(command, value) {
@@ -138,8 +143,16 @@ class Agent {
     onHear(parameters) {
         console.info("HEAR", parameters)
         const [tick, sender, message] = parameters
-
-        this.controller.onHear(tick, sender, message)
+        
+        if (message == '"go"' && sender != 'self') {
+            this.isHearedGo = true
+        } else if (message.includes("goal")) {
+            this.isPassed = false
+            this.isSaidGo = false
+            this.isHearedGo = false
+            this.agentHearedState = undefined
+            this.controller.onHear(tick, sender, message)
+        }
     }
 
     getFlags(p) {
@@ -181,15 +194,15 @@ class Agent {
 
         Utils.shuffle(flags)
 
-        console.debug("Flags: ", flags)
-        console.debug("Game objects: ", gameObjects)
+        // console.debug("Flags: ", flags)
+        // console.debug("Game objects: ", gameObjects)
 
         const position = Utils.calculatePosition(flags);
 
         if (!position) {
-            console.warn("Position not found")
+            // console.warn("Position not found")
         } else {
-            console.debug("Position found: ", position)
+            // console.debug("Position found: ", position)
         }
 
         const relativePosition = position ? position : this.assumedPosition
@@ -202,7 +215,7 @@ class Agent {
                 ...objectPosition
             }
 
-            console.debug("Object: ", gameObjects[i])
+            // console.debug("Object: ", gameObjects[i])
         }
 
         const angle = Utils.calculateAngle(relativePosition, flags)
@@ -212,7 +225,6 @@ class Agent {
     }
 
     onSee(parameters) {
-
         const [position, angle, flags, gameObjects] = this.processEnvironment(parameters)
 
         if (position) {
@@ -223,15 +235,30 @@ class Agent {
             this.setAngle(angle)
         }
 
-        console.info("SEE", position, angle, gameObjects)
+        // console.info("SEE", position, angle, gameObjects)
 
-        const agentState = {
+        let agentState = {
             teamName: this.teamName,
             id: this.id,
             position,
             angle,
             flags,
-            gameObjects
+            gameObjects,
+            isPassed: this.isPassed,
+            isSaidGo: this.isSaidGo,
+        }
+
+        if (this.isHearedGo) {
+            this.agentHearedState = {
+                teamName: this.teamName,
+                id: this.id,
+                position,
+                angle,
+                flags,
+                gameObjects,
+                isHearedGo: this.isHearedGo
+            }
+            agentState = this.agentHearedState
         }
 
         const [command, ...commandParameters] = this.controller.getCommand(agentState)
@@ -247,9 +274,13 @@ class Agent {
                 this.turn(...commandParameters)
                 break
             case "kick":
+                if (this.isSaidGo) {
+                    this.isPassed = true
+                }
                 this.kick(...commandParameters)
                 break
             case "say":
+                this.isSaidGo = true
                 this.say(...commandParameters)
                 break
             case "stay":
@@ -259,7 +290,7 @@ class Agent {
     }
 
     onSenseBody(parameters) {
-        console.debug("SENSE_BODY", parameters)
+        // console.debug("SENSE_BODY", parameters)
     }
 }
 

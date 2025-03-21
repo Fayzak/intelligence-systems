@@ -20,7 +20,7 @@ module.exports = {
     },
 
     isPlayersVisible: function() {
-        console.info("isLeaderVisible")
+        // console.info("isLeaderVisible")
         if (IterationState.players.length > 0) {
             return "defineLeader"
         } else {

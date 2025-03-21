@@ -28,7 +28,7 @@ module.exports = {
     },
 
     isLeaderVisible: function() {
-        console.info("isLeaderVisible")
+        // console.info("isLeaderVisible")
         if (IterationState.leader.visible) {
             return "isLeaderTooFar"
         } else {
@@ -37,7 +37,7 @@ module.exports = {
     },
 
     isLeaderTooFar: function() {
-        console.info("isLeaderTooFar")
+        // console.info("isLeaderTooFar")
         if (IterationState.leader.visible.d > 12) {
             return "isLeaderFarAhead"
         } else {
@@ -46,7 +46,7 @@ module.exports = {
     },
 
     isLeaderTooClose: function() {
-        console.info("isLeaderTooClose")
+        // console.info("isLeaderTooClose")
         if (IterationState.leader.visible.d < 7) {
             return "dashSlightly"
         } else {
@@ -55,7 +55,7 @@ module.exports = {
     },
 
     isLeaderCloseAhead: function() {
-        console.info("isLeaderCloseAhead")
+        // console.info("isLeaderCloseAhead")
         if (Math.abs(Math.abs(IterationState.leader.visible.angle) - 30) < 10) {
             return "dashNormally"
         } else {
@@ -64,7 +64,7 @@ module.exports = {
     },
 
     isOnTheLeft: function() {
-        console.info("isOnTheLeft")
+        // console.info("isOnTheLeft")
         if (IterationState.side === "l") {
             return "keepToTheLeft"
         } else {
@@ -73,7 +73,7 @@ module.exports = {
     },
 
     isLeaderFarAhead: function() {
-        console.info("isLeaderFarAhead")
+        // console.info("isLeaderFarAhead")
         if (Math.abs(IterationState.leader.visible.angle) < 10) {
             return "dashHarshly"
         } else {

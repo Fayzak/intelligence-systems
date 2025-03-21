@@ -17,8 +17,8 @@ module.exports = {
                 position: agentState.position,
                 angle: agentState.angle
             },
-            // isPassed: agentState.isPassed,
-            // isSaidGo: agentState.isSaidGo,
+            isPassed: agentState.isPassed,
+            isSaidGo: agentState.isSaidGo,
         }
     },
 
@@ -27,11 +27,15 @@ module.exports = {
     },
 
     getRoot: function() {
-        return "isBallVisible"
+        if (IterationState.isSaidGo && IterationState.isPassed) {
+            return "actionWithScorer"
+        } else {
+            return "isBallVisible"
+        }
     },
 
     isBallVisible: function() {
-        console.info("isBallVisible")
+        // console.info("isBallVisible")
         if (IterationState.ball) {
             return "isBallNear"
         } else {
@@ -40,7 +44,7 @@ module.exports = {
     },
 
     isBallNear: function() {
-        console.info("isBallNear")
+        // console.info("isBallNear")
         if (IterationState.ball.d < 1) {
             return "isPositionDefined"
         } else {
@@ -49,7 +53,7 @@ module.exports = {
     },
 
     isPositionDefined: function() {
-        console.info("isPositionDefined")
+        // console.info("isPositionDefined")
         if (IterationState.agent.position && IterationState.agent.angle) {
             return "isScorerVisible"
         } else {
@@ -68,7 +72,7 @@ module.exports = {
     },
 
     isBallPositionDefined() {
-        console.info("isBallPositionDefined")
+        // console.info("isBallPositionDefined")
         if (IterationState.agent.position && IterationState.agent.angle && IterationState.ball.x && IterationState.ball.y) {
             return "calculateBallPosition"
         } else {
@@ -77,7 +81,7 @@ module.exports = {
     },
 
     calculateBallPosition: function() {
-        console.info("calculateBallPosition")
+        // console.info("calculateBallPosition")
         const position = IterationState.agent.position
         const angle = IterationState.agent.angle
 
@@ -97,7 +101,7 @@ module.exports = {
     },
 
     setVisibleBallPosition: function() {
-        console.info("setVisibleBallPosition")
+        // console.info("setVisibleBallPosition")
         IterationState.ball = {
             ...IterationState.ball,
             direction: IterationState.ball.angle,
@@ -108,7 +112,7 @@ module.exports = {
     },
 
     isBallAhead: function() {
-        console.info("isBallAhead")
+        // console.info("isBallAhead")
         if (Math.abs(IterationState.ball.direction) < 10) {
             return "dashToBall"
         } else {
@@ -135,7 +139,7 @@ module.exports = {
     },
 
     isScorerVisible: function() {
-        console.info("isScorerVisible")
+        // console.info("isScorerVisible")
         setTimeout(() => {}, 10000) // Ждем немного чтобы забивающий подошел ?
         if (IterationState.scorer.visible) {
             return "isScorerTooFar"
@@ -145,8 +149,8 @@ module.exports = {
     },
 
     isScorerTooFar: function() {
-        console.info(IterationState.agent.position)
-        console.info("isScorerTooFar")
+        // console.info(IterationState.agent.position)
+        // console.info("isScorerTooFar")
         if (IterationState.scorer.visible.d > 20) {
             return "isScorerFarAhead"
         } else {
@@ -155,25 +159,25 @@ module.exports = {
     },
 
     isScorerTooClose: function() {
-        console.info("isScorerTooClose")
+        // console.info("isScorerTooClose")
         if (IterationState.scorer.visible.d < 15) {
-            return "passToScorer"
+            return "actionWithScorer"
         } else {
             return "isScorerCloseAhead"
         }
     },
 
     isScorerCloseAhead: function() {
-        console.info("isScorerCloseAhead")
+        // console.info("isScorerCloseAhead")
         if (Math.abs(Math.abs(IterationState.scorer.visible.angle) - 30) < 10) {
-            return "passToScorer"
+            return "actionWithScorer"
         } else {
             return "isOnTheLeft"
         }
     },
 
     isOnTheLeft: function() {
-        console.info("isOnTheLeft")
+        // console.info("isOnTheLeft")
         if (IterationState.side === "l") {
             return "keepToTheLeft"
         } else {
@@ -182,7 +186,7 @@ module.exports = {
     },
 
     isScorerFarAhead: function() {
-        console.info("isScorerFarAhead")
+        // console.info("isScorerFarAhead")
         if (Math.abs(IterationState.scorer.visible.angle) < 10) {
             return "dribbleBall"
         } else {
@@ -222,27 +226,40 @@ module.exports = {
         terminate: true,
         getCommand: () => {
             let angle = (IterationState.agent.position.x > 0) ? 45 : -45;
-            return ["kick", 5, angle]
+            return ["kick", 1, angle]
         },
         getResult: () => {
         } 
     },
 
+    actionWithScorer: function() {
+        if (IterationState.isPassed && IterationState.isSaidGo) {
+            return "isBallVisible"
+        }
+        if (IterationState.isSaidGo) {
+            return "passToScorer"
+        }
+        return "sayGoToScorer"
+    },
+
+    sayGoToScorer: {
+        terminate: true,
+        getCommand: () => {
+            IterationState.isSaidGo = true
+            return ["say", "go"]
+        },
+        getResult: () => {
+        }
+    },
+
     passToScorer: {
         terminate: true,
         getCommand: () => {
-            // if (IterationState.isSaidGo) {
-            //     return ["stay"]
-            // }
-            // if (IterationState.isPassed) {
-            //     IterationState.isSaidGo = true
-            //     return ["say", "go"]
-            // }
-            // IterationState.isPassed = true
+            IterationState.isPassed = true
             return ["kick", 70, IterationState.scorer.visible.angle]
         },
         getResult: () => {
-        } 
+        }
     },
 
     turnToScorer: {

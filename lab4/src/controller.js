@@ -47,11 +47,25 @@ class Controller {
         //     // {action: "run", target: "fc"},
         //     {action: "kick", target: "gr"}
         // ]
+        this.prevActions = actions
 
         this.currentActionIndex = 0
     }
 
+    defineLeaderActions(agentState) {
+        if (agentState.isHearedGo) {
+            this.actions = [
+                {action: "kick", target: "gr"}
+            ]
+        } else {
+            this.actions = this.prevActions
+        }
+    }
+
     getCommand(agentState) {
+        console.info(this.actions)
+        this.defineLeaderActions(agentState)
+
         const {action: action, ...actionParameters} = this.actions[this.currentActionIndex]
 
         let result = null
@@ -86,7 +100,7 @@ class Controller {
                 result = DTProcessor.definePosition.execute(agentState, actionParameters)
 
                 const {isLeader, leaderName, side} = result.getResult()
-                console.info(isLeader, leaderName, side)
+                // console.info(isLeader, leaderName, side)
 
                 if (isLeader) {
                     this.actions = [
@@ -97,10 +111,12 @@ class Controller {
                         {action: "run", target: "fplc"},
                         // {action: "kick", target: "gr"}
                     ]
+                    this.prevActions = this.actions
                 } else {
                     this.actions = [
-                        {action: "send_pass", target: leaderName, side: side}, // Как определить, когда follow а когда send_pass?
+                        {action: "send_pass", target: leaderName, side: side}
                     ]
+                    this.prevActions = this.actions
                 }
 
                 break
@@ -108,7 +124,7 @@ class Controller {
             case "defend_gate":
 
                 result = DTProcessor.defendGate.execute(agentState, actionParameters)
-                console.info(result.getCommand())
+                // console.info(result.getCommand())
 
                 return result.getCommand()
             

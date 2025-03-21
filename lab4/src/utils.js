@@ -4,14 +4,14 @@ module.exports = {
     },
     getIntersections(circle1, circle2) {
 
-        console.debug("Circle 1: ", circle1)
-        console.debug("Circle 2: ", circle2)
+        // console.debug("Circle 1: ", circle1)
+        // console.debug("Circle 2: ", circle2)
 
         const { x: x1, y: y1, d: d1 } = circle1
         const { x: x2, y: y2, d: d2 } = circle2
 
         if (x1 == x2) {
-            console.debug("x1 == x2")
+            // console.debug("x1 == x2")
 
             const y = (d1 ** 2 - d2 ** 2 + x2 ** 2 - x1 ** 2 + y2 ** 2 - y1 ** 2) / (2 * (y2 - y1))
 
@@ -35,7 +35,7 @@ module.exports = {
         }
 
         if (y1 == y2) {
-            console.debug("y1 == y2")
+            // console.debug("y1 == y2")
 
             const x = (d1 ** 2 - d2 ** 2 + x2 ** 2 - x1 ** 2 + y2 ** 2 - y1 ** 2) / (2 * (x2 - x1))
 
@@ -58,7 +58,7 @@ module.exports = {
 
         }
 
-        console.debug("x1 != x2 and y1 != y2")
+        // console.debug("x1 != x2 and y1 != y2")
 
         const alpha = (y1 - y2) / (x2 - x1)
         const beta = (d1 ** 2 - d2 ** 2 + x2 ** 2 - x1 ** 2 + y2 ** 2 - y1 ** 2) / (2 * (x2 - x1))
@@ -73,12 +73,12 @@ module.exports = {
             D = 0
         }
 
-        console.debug("alpha: ", alpha)
-        console.debug("beta: ", beta)
-        console.debug("a: ", a)
-        console.debug("b: ", b)
-        console.debug("c: ", c)
-        console.debug("D: ", D)
+        // console.debug("alpha: ", alpha)
+        // console.debug("beta: ", beta)
+        // console.debug("a: ", a)
+        // console.debug("b: ", b)
+        // console.debug("c: ", c)
+        // console.debug("D: ", D)
 
         const possibleY1 = (-b + Math.sqrt(D)) / (2 * a)
         const possibleY2 = (-b - Math.sqrt(D)) / (2 * a)
@@ -168,21 +168,21 @@ module.exports = {
     calculatePosition(flags) {
 
         if (flags.length < 2) {
-            console.warn("Not enough flags to calculate position")
+            // console.warn("Not enough flags to calculate position")
             return null
         }
 
         const possiblePositions = this.getIntersections(flags[0], flags[1])
 
-        console.debug("Possible positions: ", possiblePositions)
+        // console.debug("Possible positions: ", possiblePositions)
 
         if (flags.length == 2 || this.checkIfOnOneLine(flags)) {
-            console.debug("On one line or not enough flags", this.checkIfOnOneLine(flags))
+            // console.debug("On one line or not enough flags", this.checkIfOnOneLine(flags))
             const filtered = possiblePositions.filter(this.isOnField)
-            console.debug("Filtered positions: ", filtered)
+            // console.debug("Filtered positions: ", filtered)
 
             if (filtered.length != 1) {
-                console.warn("Can't determine position")
+                // console.warn("Can't determine position")
                 return null
             }
 
@@ -202,7 +202,7 @@ module.exports = {
 
         // TODO: process possible errors
         if (flags.length < 1) {
-            console.warn("Not enough flags to calculate angle")
+            // console.warn("Not enough flags to calculate angle")
             return null
         }
 
@@ -273,7 +273,7 @@ module.exports = {
 
         // TODO: process possible errors
         // if (flags.length < 1) {
-        //     console.warn("Not enough flags to calculate angle")
+        //     // console.warn("Not enough flags to calculate angle")
         //     return null
         // }
 

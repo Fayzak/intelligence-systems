@@ -31,7 +31,7 @@ module.exports = {
     },
 
     isPositionDefined: function() {
-        console.info("isPositionDefined")
+        // console.info("isPositionDefined")
         if (IterationState.agent.position && IterationState.agent.angle) {
             return "calculateTargetPosition"
         } else {
@@ -40,7 +40,7 @@ module.exports = {
     },
 
     calculateTargetPosition: function() {
-        console.info("calculateTargetPosition")
+        // console.info("calculateTargetPosition")
         const position = IterationState.agent.position
         const angle = IterationState.agent.angle
 
@@ -60,7 +60,7 @@ module.exports = {
     },
 
     isTargetAhead: function() {
-        console.info("isTargetAhead")
+        // console.info("isTargetAhead")
         if (Math.abs(IterationState.target.direction) < 10) {
             return "dashToTarget"
         } else {
@@ -89,7 +89,7 @@ module.exports = {
     },
 
     isFlagVisible: function() {
-        console.info("isFlagVisible")
+        // console.info("isFlagVisible")
         if (IterationState.target.visible) {
             return "setVisibleFlagPosition"
         } else {
@@ -98,7 +98,7 @@ module.exports = {
     },
 
     setVisibleFlagPosition: function() {
-        console.info("setVisibleFlagPosition")
+        // console.info("setVisibleFlagPosition")
         IterationState.target = {
             ...IterationState.target,
             direction: IterationState.target.visible.angle,

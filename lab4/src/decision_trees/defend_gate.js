@@ -40,7 +40,7 @@ module.exports = {
     },
 
     isPositionDefined: function() {
-        console.info("isPositionDefined")
+        // console.info("isPositionDefined")
         if (IterationState.agent.position && IterationState.agent.angle) {
             return "isBallVisible"
         } else {
@@ -49,7 +49,7 @@ module.exports = {
     },
 
     isBallVisible: function() {
-        console.info("isBallVisible")
+        // console.info("isBallVisible")
         if (IterationState.ball) {
             return "isBallSafe"
         } else {
@@ -58,7 +58,7 @@ module.exports = {
     },
 
     isBallSafe: function() {
-        console.info("isBallSafe")
+        // console.info("isBallSafe")
         if (IterationState.ball.x < 20) {
             return "canGoBack"
         } else {
@@ -67,12 +67,12 @@ module.exports = {
     },
 
     canGoBack: function() {
-        console.info("canGoBack")
+        // console.info("canGoBack")
         if (IterationState.agent.position.x < 40) {
-            console.info("goBack")
+            // console.info("goBack")
             return "goBack"
         } else {
-            console.info("stay")
+            // console.info("stay")
             return "stay"
         }
     },
@@ -96,7 +96,7 @@ module.exports = {
     },
 
     calculateBallPosition: function() {
-        console.info("calculateBallPosition")
+        // console.info("calculateBallPosition")
         const position = IterationState.agent.position
         const angle = IterationState.agent.angle
 
@@ -116,7 +116,7 @@ module.exports = {
     },
 
     isBallNear: function() {
-        console.info("isBallNear")
+        // console.info("isBallNear")
         if (IterationState.ball.d < 1) {
             return "calculateCenterPosition"
         } else {
@@ -125,7 +125,7 @@ module.exports = {
     },
 
     calculateCenterPosition: function() {
-        console.info("calculateCenterPosition")
+        // console.info("calculateCenterPosition")
         const position = IterationState.agent.position
         const angle = IterationState.agent.angle
 
@@ -154,7 +154,7 @@ module.exports = {
     },
 
     isBallAhead: function() {
-        console.info("isBallAhead")
+        // console.info("isBallAhead")
         if (Math.abs(IterationState.ball.direction) < 10) {
             return "dashToBall"
         } else {

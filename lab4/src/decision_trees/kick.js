@@ -32,7 +32,7 @@ module.exports = {
     },
 
     isBallVisible: function() {
-        console.info("isBallVisible")
+        // console.info("isBallVisible")
         if (IterationState.ball) {
             return "isBallNear"
         } else {
@@ -41,7 +41,7 @@ module.exports = {
     },
 
     isBallNear: function() {
-        console.info("isBallNear")
+        // console.info("isBallNear")
         if (IterationState.ball.d < 1) {
             return "isPositionDefined"
         } else {
@@ -50,7 +50,7 @@ module.exports = {
     },
 
     isPositionDefined: function() {
-        console.info("isPositionDefined")
+        // console.info("isPositionDefined")
         if (IterationState.agent.position && IterationState.agent.angle) {
             return "calculateGatePosition"
         } else {
@@ -59,7 +59,7 @@ module.exports = {
     },
 
     calculateGatePosition: function() {
-        console.info("calculateGatePosition")
+        // console.info("calculateGatePosition")
         const position = IterationState.agent.position
         const angle = IterationState.agent.angle
 
@@ -88,7 +88,7 @@ module.exports = {
     },
 
     isGateVisible: function() {
-        console.info("isGateVisible")
+        // console.info("isGateVisible")
         if (IterationState.gate.visible) {
             return "setVisibleGatePosition"
         } else {
@@ -97,7 +97,7 @@ module.exports = {
     },
 
     setVisibleGatePosition: function() {
-        console.info("setVisibleGatePosition")
+        // console.info("setVisibleGatePosition")
         IterationState.gate = {
             ...IterationState.gate,
             direction: IterationState.gate.visible.angle,
@@ -127,7 +127,7 @@ module.exports = {
     },
 
     isBallPositionDefined() {
-        console.info("isBallPositionDefined")
+        // console.info("isBallPositionDefined")
         if (IterationState.agent.position && IterationState.agent.angle && IterationState.ball.x && IterationState.ball.y) {
             return "calculateBallPosition"
         } else {
@@ -136,7 +136,7 @@ module.exports = {
     },
 
     calculateBallPosition: function() {
-        console.info("calculateBallPosition")
+        // console.info("calculateBallPosition")
         const position = IterationState.agent.position
         const angle = IterationState.agent.angle
 
@@ -156,7 +156,7 @@ module.exports = {
     },
 
     setVisibleBallPosition: function() {
-        console.info("setVisibleBallPosition")
+        // console.info("setVisibleBallPosition")
         IterationState.ball = {
             ...IterationState.ball,
             direction: IterationState.ball.angle,
@@ -167,7 +167,7 @@ module.exports = {
     },
 
     isBallAhead: function() {
-        console.info("isBallAhead")
+        // console.info("isBallAhead")
         if (Math.abs(IterationState.ball.direction) < 10) {
             return "dashToBall"
         } else {

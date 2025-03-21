@@ -82,11 +82,11 @@ class Manager {
     }
 
     getDistance(flag) {
-        console.info("DIST", flag)
+        // console.info("DIST", flag)
         const visibleDestionation = this.flags.find(fl => fl.name === flag)
         const destination = Flags[flag]
-        console.info("visdist", visibleDestionation)
-        console.info("dest", destination)
+        // console.info("visdist", visibleDestionation)
+        // console.info("dest", destination)
 
         if (!this.position || !this.angle) {
 
