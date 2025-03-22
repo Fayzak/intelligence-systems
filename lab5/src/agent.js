@@ -224,7 +224,13 @@ class Agent {
 
     }
 
+    getTime(parameters) {
+        console.info("TIME", parameters[0])
+        return parameters[0]
+    }
+
     onSee(parameters) {
+        const time = this.getTime(parameters)
         const [position, angle, flags, gameObjects] = this.processEnvironment(parameters)
 
         if (position) {
@@ -244,14 +250,18 @@ class Agent {
             angle,
             flags,
             gameObjects,
+            time,
+            side: this.side,
             isPassed: this.isPassed,
             isSaidGo: this.isSaidGo,
         }
 
         if (this.isHearedGo) {
             this.agentHearedState = {
+                // time: 
                 teamName: this.teamName,
                 id: this.id,
+                side: this.side,
                 position,
                 angle,
                 flags,

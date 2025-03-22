@@ -1,6 +1,8 @@
 const Flags = require('./flags')
 const Utils = require('./utils')
 const DTProcessor = require('./dt_processor.js')
+
+const TAManager = require('./time_automata/manager')
 // const UniversalDT = require('./decision_trees')
 // const Manager = require('./manager')
 
@@ -37,19 +39,23 @@ StateMachine = {
 }
 
 class Controller {
-    constructor(actions) {
-        this.actions = actions
-        // this.actions = [
-        //     // {action: "run", target: "frt"},
-        //     // {action: "run", target: "frb"},
-        //     // {action: "run", target: "flb"},
-        //     // {action: "run", target: "flt"},
-        //     // {action: "run", target: "fc"},
-        //     {action: "kick", target: "gr"}
-        // ]
-        this.prevActions = actions
+    // constructor(actions) {
+    //     this.actions = actions
+    //     // this.actions = [
+    //     //     // {action: "run", target: "frt"},
+    //     //     // {action: "run", target: "frb"},
+    //     //     // {action: "run", target: "flb"},
+    //     //     // {action: "run", target: "flt"},
+    //     //     // {action: "run", target: "fc"},
+    //     //     {action: "kick", target: "gr"}
+    //     // ]
+    //     this.prevActions = actions
+    //
+    //     this.currentActionIndex = 0
+    // }
 
-        this.currentActionIndex = 0
+    constructor(ta) {
+        this.ta = ta
     }
 
     defineLeaderActions(agentState) {
@@ -64,76 +70,83 @@ class Controller {
     }
 
     getCommand(agentState) {
-        this.defineLeaderActions(agentState)
 
-        const {action: action, ...actionParameters} = this.actions[this.currentActionIndex]
+        const action = TAManager.getAction(agentState, this.ta)
 
-        let result = null
+        console.info("ACION", action)
 
-        switch (action) {
-            case "run":
+        return [action.n, action.v]
 
-                result = DTProcessor.run.execute(agentState, actionParameters)
-
-                const targetDistance = result.getResult()
-
-                if (targetDistance && targetDistance <= 3) {
-                    this.nextAction()
-                }
-
-                return result.getCommand()
-
-            case "kick":
-
-                result = DTProcessor.kick.execute(agentState, actionParameters)
-
-                return result.getCommand()
-
-            case "follow":
-
-                result = DTProcessor.follow.execute(agentState, actionParameters)
-
-                return result.getCommand()
-
-            case "define_position":
-
-                result = DTProcessor.definePosition.execute(agentState, actionParameters)
-
-                const {isLeader, leaderName, side} = result.getResult()
-                // console.info(isLeader, leaderName, side)
-
-                if (isLeader) {
-                    this.actions = [
-                        // {action: "run", target: "frt"},
-                        // {action: "run", target: "flb"},
-                        // {action: "run", target: "flt"},
-                        {action: "run", target: "fc"},
-                        {action: "run", target: "fplc"},
-                        // {action: "kick", target: "gr"}
-                    ]
-                } else {
-                    this.actions = [
-                        {action: "send_pass", target: leaderName, side: side}
-                    ]
-                }
-                this.prevActions = this.actions
-
-                break
-
-            case "defend_gate":
-
-                result = DTProcessor.defendGate.execute(agentState, actionParameters)
-                // console.info(result.getCommand())
-
-                return result.getCommand()
-            
-            case "send_pass":
-
-                result = DTProcessor.sendPass.execute(agentState, actionParameters)
-                console.info(`SEND_PASS - ${result.getCommand()}`)
-
-                return result.getCommand()
-        }
+        // this.defineLeaderActions(agentState)
+        //
+        // const {action: action, ...actionParameters} = this.actions[this.currentActionIndex]
+        //
+        // let result = null
+        //
+        // switch (action) {
+        //     case "run":
+        //
+        //         result = DTProcessor.run.execute(agentState, actionParameters)
+        //
+        //         const targetDistance = result.getResult()
+        //
+        //         if (targetDistance && targetDistance <= 3) {
+        //             this.nextAction()
+        //         }
+        //
+        //         return result.getCommand()
+        //
+        //     case "kick":
+        //
+        //         result = DTProcessor.kick.execute(agentState, actionParameters)
+        //
+        //         return result.getCommand()
+        //
+        //     case "follow":
+        //
+        //         result = DTProcessor.follow.execute(agentState, actionParameters)
+        //
+        //         return result.getCommand()
+        //
+        //     case "define_position":
+        //
+        //         result = DTProcessor.definePosition.execute(agentState, actionParameters)
+        //
+        //         const {isLeader, leaderName, side} = result.getResult()
+        //         // console.info(isLeader, leaderName, side)
+        //
+        //         if (isLeader) {
+        //             this.actions = [
+        //                 // {action: "run", target: "frt"},
+        //                 // {action: "run", target: "flb"},
+        //                 // {action: "run", target: "flt"},
+        //                 {action: "run", target: "fc"},
+        //                 {action: "run", target: "fplc"},
+        //                 // {action: "kick", target: "gr"}
+        //             ]
+        //         } else {
+        //             this.actions = [
+        //                 {action: "send_pass", target: leaderName, side: side}
+        //             ]
+        //         }
+        //         this.prevActions = this.actions
+        //
+        //         break
+        //
+        //     case "defend_gate":
+        //
+        //         result = DTProcessor.defendGate.execute(agentState, actionParameters)
+        //         // console.info(result.getCommand())
+        //
+        //         return result.getCommand()
+        //     
+        //     case "send_pass":
+        //
+        //         result = DTProcessor.sendPass.execute(agentState, actionParameters)
+        //         console.info(`SEND_PASS - ${result.getCommand()}`)
+        //
+        //         return result.getCommand()
+        // }
 
         return ["stay"]
     }
