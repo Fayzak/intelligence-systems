@@ -234,12 +234,21 @@ module.exports = {
 
     actionWithScorer: function() {
         if (IterationState.isPassed && IterationState.isSaidGo) {
-            return "isBallVisible"
+            return "waitGollAfterPass"
         }
         if (IterationState.isSaidGo) {
             return "passToScorer"
         }
         return "sayGoToScorer"
+    },
+
+    waitGollAfterPass: {
+        terminate: true,
+        getCommand: () => {
+            return ["stay"]
+        },
+        getResult: () => {
+        }
     },
 
     sayGoToScorer: {

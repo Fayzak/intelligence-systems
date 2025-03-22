@@ -57,13 +57,13 @@ class Controller {
             this.actions = [
                 {action: "kick", target: "gr"}
             ]
+            this.currentActionIndex = 0
         } else {
             this.actions = this.prevActions
         }
     }
 
     getCommand(agentState) {
-        console.info(this.actions)
         this.defineLeaderActions(agentState)
 
         const {action: action, ...actionParameters} = this.actions[this.currentActionIndex]
@@ -111,13 +111,12 @@ class Controller {
                         {action: "run", target: "fplc"},
                         // {action: "kick", target: "gr"}
                     ]
-                    this.prevActions = this.actions
                 } else {
                     this.actions = [
                         {action: "send_pass", target: leaderName, side: side}
                     ]
-                    this.prevActions = this.actions
                 }
+                this.prevActions = this.actions
 
                 break
 
