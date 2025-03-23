@@ -37,11 +37,11 @@ const x = args.x === undefined ? -15 : args.x
 const y = args.y === undefined ? -10 : args.y
 const angle = args.angle === undefined ? 45 : args.angle
 
-let agent = new Agent() // Создание экземпляра агента
-agent.setController(new Controller(TARunner))
-agent.setTeamName(teamName)
-require('./socket')(agent, teamName, VERSION) //Настройка сокета
-agent.move(x, y)
+// let agent = new Agent() // Создание экземпляра агента
+// agent.setController(new Controller(TARunner))
+// agent.setTeamName(teamName)
+// require('./socket')(agent, teamName, VERSION) //Настройка сокета
+// agent.move(x, y)
 
 // let agent2 = new Agent() // Создание экземпляра агента
 // agent2.setController(new Controller([

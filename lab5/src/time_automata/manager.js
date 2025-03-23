@@ -11,43 +11,65 @@ const Manager = {
         //console.log("get action")
         let taken = Taken.setSee(agentState)
         this.incTimers(taken, ta)
-        if (ta.actions[BEFORE_ACTION])
+        if (ta.actions[BEFORE_ACTION]) {
             ta.actions[BEFORE_ACTION](taken, ta.state)
+        }
         return this.execute(taken, ta)
     },
     incTimers(taken, ta) { // УВеличение таймеров
-        //console.log("inc timer"+this.lastTime)
-        if (!this.lastTime)
+        if (!this.lastTime) {
             this.lastTime = 0
+        }
+
+        console.log(this.lastTime, taken.time)
+
         if (taken.time > this.lastTime) {
+            const diff = taken.time - this.lastTime
             this.lastTime = taken.time
-            for (let key in ta.state.timers)
-                ta.state.timers[key] = ta.state.timers[key] + 1
+            for (let key in ta.state.timers) {
+                console.info(key, ta.state.timers[key])
+                ta.state.timers[key] = ta.state.timers[key] + diff
+            }
         }
     },
     execute(taken, ta) { // Формирование действия
+        console.log("execute", ta.current)
         //console.log("execute")
         if (ta.state.synch) { // Если Действие выполнено не до конца
             let cond = ta.state.synch.substr(0, ta.state.synch.length - 1)
+            console.log("synch", ta.state.synch)
             return ta.actions[cond](taken, ta.state)
         }
+
         if (ta.state.next) { // Переход на следующей действие
-            if (ta.nodes[ta.current]) return this.nextState(taken, ta)
-            if (ta.edges[ta.current]) return this.nextEdge(taken, ta)
+            if (ta.nodes[ta.current]) {
+                return this.nextState(taken, ta)
+            }
+            if (ta.edges[ta.current]) {
+                return this.nextEdge(taken, ta)
+            }
         } // Переход не нужен
-        if (ta.nodes[ta.current]) return this.executeState(taken, ta)
-        if (ta.edges[ta.current]) return this.executeEdge(taken, ta)
+
+        if (ta.nodes[ta.current]) {
+            return this.executeState(taken, ta)
+        }
+        if (ta.edges[ta.current]) {
+            return this.executeEdge(taken, ta)
+        }
         throw `Unexpected state: ${ta.current}`
     },
 
     nextState(taken, ta) { // Находимся в узле, нужен переход
+        console.log("next state", ta.current)
 
         let node = ta.nodes[ta.current]
-        console.log(ta.current)
         for (let name of node.e) { // Перебираем ребра
+
             let edgeName = `${node.n}_${name}`
             let edge = ta.edges[edgeName]
+
             if (!edge) throw `Unexpected edge: ${node.n}_${name}`
+
             for (let e of edge) { // Проверяем все ребра
                 //console.log(e)
                 if (e.guard) { // Проверяем ограничения
@@ -77,6 +99,7 @@ const Manager = {
         }
     },
     nextEdge(taken, ta) { // Находимся в ребре, нужен переход
+        console.log("next edge", ta.current)
         //console.log("next edge")
         let arr = ta.current.split("_")
         // После подчеркивания — имя узла, куда должны попасть
@@ -90,7 +113,12 @@ const Manager = {
         let node = ta.nodes[ta.current]
         if (ta.actions[node]) { // Если Действие в узле есть
             let action = ta.actions[node](taken, ta.state)
-            if (!action && ta.state.next) return this.execute(taken, ta)
+            if (!action && ta.state.next) {
+                return this.execute(taken, ta)
+            }
+            if (!action) {
+                console.info("AAAAAAAAAAAAAAAAA")
+            }
             return action
         } else { // Если Действия в узле нет
             ta.state.next = true
@@ -98,17 +126,21 @@ const Manager = {
         }
     },
     executeEdge(taken, ta) { // ВыполНить Действия в ребре
-        //console.log("execute edge")
+        console.log("execute edge", ta.current)
         let edges = ta.edges[ta.current]
+        console.log(edges)
         for (let e of edges) { // Может быть несколько ребер
             if (e.guard) { // Выбираем "наше" ребро
                 let guard = true
-                for (let g of e.guard)
+                for (let g of e.guard) {
                     if (!this.guard(taken, ta, g)) {
                         guard = false
                         break // Ограничение не выполнено
                     }
-                if (!guard) continue // Ребро нам не подходит
+                }
+                if (!guard) {
+                    continue // Ребро нам не подходит
+                }
             }
             if (e.assign) { // Есть назначения в ребре
                 for (let a of e.assign) {
@@ -122,8 +154,9 @@ const Manager = {
 
                         ta.state.timers[a.n] = a.v
                     } else { // ДЛя переменных
-                        if (!ta.state.variables[a.n])
+                        if (!ta.state.variables[a.n]) {
                             throw `Unexpected variable: ${a}`
+                        }
                         ta.state.variables[a.n] = a.v
                     }
                 }
@@ -133,8 +166,9 @@ const Manager = {
                     throw `Unexpected synch: ${e.synch}`
                 if (e.synch.endsWith("!")) { // Выполнение действия
                     let cond = e.synch.substr(0, e.synch.length - 1)
-                    if (!ta.actions[cond])
+                    if (!ta.actions[cond]) {
                         throw `Unexpected synch: ${e.synch}`
+                    }
                     //Выполнение action
                     return ta.actions[cond](taken, ta.state)
 
@@ -148,38 +182,51 @@ const Manager = {
     guard(taken, ta, g) { // Проверка условий
 
         function taStateObject(o, ta) {     /* Получение
- таймера / переменной(g.l или g.r)
-*/
-            if (typeof o == "object")
+                                             * таймера / переменной(g.l или g.r)
+                                             */
+            if (typeof o == "object") {
                 return o.v ? ta.state.variables[o.v] : ta.state.timers[o.t]
-            else
+            } else {
                 return o
-
+            }
         }
-
 
         function lt(ta, l, r) { // Проверка неравенства
             //console.log(taStateObject(l, ta))
-           // console.log(taStateObject(r, ta))
-            if(taStateObject(l, ta) === null) return false
-            if(taStateObject(r, ta) === null) return false
+            // console.log(taStateObject(r, ta))
+            if (taStateObject(l, ta) === null) {
+                return false
+            }
+
+            if (taStateObject(r, ta) === null) {
+                return false
+            }
+
             return taStateObject(l, ta) < taStateObject(r, ta)
         }
+
         function lte(ta, l, r) { // Проверка неравенства
             //console.log(taStateObject(l, ta))
             //console.log(taStateObject(r, ta))
-            if(taStateObject(l, ta) === null) return false
-            if(taStateObject(r, ta) === null) return false
+            if (taStateObject(l, ta) === null) {
+                return false
+            }
+
+            if (taStateObject(r, ta) === null) {
+                return false
+            }
+
             return taStateObject(l, ta) <= taStateObject(r, ta)
         }
 
         //TODO ПРоверка условий
         //throw `Unexpected guard:${JSON.stringify(g)}`
-        if(g.s === "lt")
+        if (g.s === "lt") {
             return lt(ta, g.l, g.r)
-        else
+        }
+        else {
             return lte(ta, g.l, g.r)
-
+        }
     },
 }
 

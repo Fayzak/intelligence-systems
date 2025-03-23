@@ -75,7 +75,8 @@ class Controller {
 
         console.info("ACION", action)
 
-        return [action.n, action.v]
+        return action
+        // return [action.n, action.v]
 
         // this.defineLeaderActions(agentState)
         //
@@ -250,9 +251,9 @@ class Controller {
     }
 
     onHear(tick, sender, message) {
-        if (message.includes("goal") && this.actions[this.currentActionIndex].action === "kick") {
-            this.currentActionIndex = (this.currentActionIndex + 1) % this.actions.length
-        }
+        // if (message.includes("goal") && this.actions[this.currentActionIndex].action === "kick") {
+        //     this.currentActionIndex = (this.currentActionIndex + 1) % this.actions.length
+        // }
     }
 
 }

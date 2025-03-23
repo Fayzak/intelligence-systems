@@ -59,11 +59,11 @@ agent.move(x, y)
 // require('./socket')(agent3, teamName, VERSION) //Настройка сокета
 // agent3.move(x - 10, y - 2)
 
-let agent4 = new Agent() // Создание экземпляра агента
-agent4.setController(new Controller(TAGoalie))
-agent4.setTeamName("enemy")
-require('./socket')(agent4, "enemy", VERSION, true) //Настройка сокета
-agent4.move(-40, 0)
+// let agent4 = new Agent() // Создание экземпляра агента
+// agent4.setController(new Controller(TAGoalie))
+// agent4.setTeamName("enemy")
+// require('./socket')(agent4, "enemy", VERSION, true) //Настройка сокета
+// agent4.move(-40, 0)
 
 // setTimeout(() => undefined, 1000)
 //

@@ -15,10 +15,7 @@ Taken = {
         //console.log(see.b_labels)
         this.see = agentState
 
-        this.pos = {
-            x: position.x,
-            y: position.y
-        }
+        this.pos = position
 
         this.time = time
         this.team_name = team
@@ -37,7 +34,7 @@ Taken = {
             this.ball = ball
 
         } else {
-            this.ball = undefined
+            this.ball = null 
         }
 
         const players = gameObjects.filter(object => object.name.startsWith("p"))
@@ -58,11 +55,24 @@ Taken = {
             //console.log(enemy_team)
         }
 
-
         const enemySide = side === "l" ? "r" : "l"
 
         const ownGoalFlag = `g${side}`
+        const ownPositionFlag = `fp${side}c`
         const enemyGoalFlag = `g${enemySide}`
+
+        this.positionOwn = {
+            x: Flags[ownPositionFlag].x,
+            y: Flags[ownPositionFlag].y,
+            f:ownPositionFlag,
+        }
+        const index_own = flags.findIndex(function(flag) {
+            return flag.name === ownPositionFlag
+        });
+        if (index_own !== -1) {
+            this.positionOwn.d = flags[index_own].d
+            this.positionOwn.angle = flags[index_own].angle
+        }
 
         this.goalOwn = {
             x: Flags[ownGoalFlag].x,
@@ -73,7 +83,7 @@ Taken = {
             return flag.name === ownGoalFlag
         });
         if(index !==-1){
-            this.goalOwn.dist = flags[index].d
+            this.goalOwn.d = flags[index].d
             this.goalOwn.angle = flags[index].angle
         }
 
@@ -85,8 +95,8 @@ Taken = {
         const index_enemy = flags.findIndex(function(flag) {
             return flag.name === enemyGoalFlag
         });
-        if(index_enemy !==-1){
-            this.goal.dist = flags[index_enemy].d
+        if (index_enemy !== -1) {
+            this.goal.d = flags[index_enemy].d
             this.goal.angle = flags[index_enemy].angle
         }
 
