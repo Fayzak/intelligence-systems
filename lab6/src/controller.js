@@ -66,6 +66,8 @@ class Controller {
     getCommand(agentState) {
         this.defineLeaderActions(agentState)
 
+        
+
         const {action: action, ...actionParameters} = this.actions[this.currentActionIndex]
 
         let result = null

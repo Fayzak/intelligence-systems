@@ -1,6 +1,7 @@
 const Msg = require('./msg')
 const Flags = require('./flags')
 const Utils = require('./utils')
+const Taken = require("./taken");
 
 const readline = require('readline')
 
@@ -52,6 +53,12 @@ class Agent {
         this.top = null
         this.center = null
         this.direction = null
+
+        this.run = true
+        this.act = null
+        this.next_act = null
+
+        this.taken = new Taken();
     }
 
     socketSend(command, value) {
@@ -138,6 +145,8 @@ class Agent {
     onInit(parameters) {
         const [side, id] = parameters
 
+        this.taken.side = side
+
         this.setSide(side)
         this.setId(id)
     }
@@ -146,14 +155,35 @@ class Agent {
         console.info("HEAR", parameters)
         const [tick, sender, message] = parameters
         
-        if (message == '"go"' && sender != 'self') {
-            this.isHearedGo = true
-        } else if (message.includes("goal")) {
-            this.isPassed = false
-            this.isSaidGo = false
-            this.isHearedGo = false
-            this.agentHearedState = undefined
-            this.controller.onHear(tick, sender, message)
+        // if (message == '"go"' && sender != 'self') {
+        //     this.isHearedGo = true
+        // } else if (message.includes("goal")) {
+        //     this.isPassed = false
+        //     this.isSaidGo = false
+        //     this.isHearedGo = false
+        //     this.agentHearedState = undefined
+        //     this.controller.onHear(tick, sender, message)
+        // }
+
+        if (message.includes("kick") && message != "before_kick_off"){
+            if (!message.includes(this.taken.side)){
+                this.run = false
+            } 
+            if (message.includes(this.taken.side)){
+                this.run = true
+                this.taken.kick = true
+            }
+        }
+        if (message.includes("goal") || message === "before_kick_off"){
+            this.act = {n: "move", v: this.start_x + " " + this.start_y}
+            this.taken.action = "return"
+            this.taken.turnData = "ft0"
+            return;
+        }
+
+        if (message.includes("play")){
+            this.run = true
+            this.taken.kick = false
         }
     }
 
@@ -237,62 +267,101 @@ class Agent {
             this.setAngle(angle)
         }
 
-        // console.info("SEE", position, angle, gameObjects)
-
-        let agentState = {
-            teamName: this.teamName,
-            id: this.id,
-            position,
-            angle,
-            flags,
-            gameObjects,
-            isPassed: this.isPassed,
-            isSaidGo: this.isSaidGo,
+        if (this.next_act){
+            this.act = this.next_act;
+            this.next_act = null;
+            return;
         }
 
-        if (this.isHearedGo) {
-            this.agentHearedState = {
-                teamName: this.teamName,
-                id: this.id,
-                position,
-                angle,
-                flags,
-                gameObjects,
-                isHearedGo: this.isHearedGo
-            }
-            agentState = this.agentHearedState
+        this.taken.state['time'] = position;
+        this.taken.set(parameters);
+
+        if (this.controllers){
+            this.act = this.controllers[0].execute(this.taken, this.controllers, this.bottom, this.top, this.direction, this.center);
+            if (Array.isArray(this.act)){
+                this.next_act = this.act[1];
+                this.act = this.act[0];
+            } 
         }
 
-        const [command, ...commandParameters] = this.controller.getCommand(agentState)
+        this.taken.resetState();
 
-        switch (command) {
-            case "move":
-                this.move(...commandParameters)
-                break
-            case "dash":
-                this.dash(...commandParameters)
-                break
-            case "turn":
-                this.turn(...commandParameters)
-                break
-            case "kick":
-                if (this.isSaidGo) {
-                    this.isPassed = true
+        if (this.run) {
+            // Игра начата
+            if (this.act) {
+                if (this.act.n == "move"){
+                    this.run = false;
                 }
-                this.kick(...commandParameters)
-                break
-            case "say":
-                this.isSaidGo = true
-                this.say(...commandParameters)
-                break
-            case "stay":
-                break
+                // Есть команда от игрока
+                if (this.act.n === "kick")
+                    // Пнуть мяч
+                    this.socketSend(this.act.n, this.act.v);
+                // Движение и поворот
+                else this.socketSend(this.act.n, this.act.v);
+            }
+            this.act = null; // Сброс команды
         }
+
+        // let agentState = {
+        //     teamName: this.teamName,
+        //     id: this.id,
+        //     position,
+        //     angle,
+        //     flags,
+        //     gameObjects,
+        //     isPassed: this.isPassed,
+        //     isSaidGo: this.isSaidGo,
+        //     controllers: this.controllers,
+        //     taken: this.taken
+        // }
+
+        // if (this.isHearedGo) {
+        //     this.agentHearedState = {
+        //         teamName: this.teamName,
+        //         id: this.id,
+        //         position,
+        //         angle,
+        //         flags,
+        //         gameObjects,
+        //         isHearedGo: this.isHearedGo,
+        //         controllers: this.controllers,
+        //         taken: this.taken
+        //     }
+        //     agentState = this.agentHearedState
+        // }
+
+        // const [command, ...commandParameters] = this.controller.getCommand(agentState)
+
+        // switch (command) {
+        //     case "move":
+        //         this.move(...commandParameters)
+        //         break
+        //     case "dash":
+        //         this.dash(...commandParameters)
+        //         break
+        //     case "turn":
+        //         this.turn(...commandParameters)
+        //         break
+        //     case "kick":
+        //         if (this.isSaidGo) {
+        //             this.isPassed = true
+        //         }
+        //         this.kick(...commandParameters)
+        //         break
+        //     case "say":
+        //         this.isSaidGo = true
+        //         this.say(...commandParameters)
+        //         break
+        //     case "stay":
+        //         break
+        // }
 
     }
 
     onSenseBody(parameters) {
         // console.debug("SENSE_BODY", parameters)
+
+        this.direction = parameters[3]['p'][1];
     }
 }
 
