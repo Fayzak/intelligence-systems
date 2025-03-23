@@ -1,4 +1,4 @@
-const utils = require("./utils");
+const utils = require("../utils");
 
 const CTRL_LOW = {
 	name: "player_low",
@@ -8,12 +8,10 @@ const CTRL_LOW = {
 		}
 		const next = controllers.slice(1)[0];
 		if (!taken.state.ball){
-			//console.log("return in Zone");
 			let act = utils.returnInZone(taken.state.pos.y, bottom, top, direction, taken);
 			if (act){
 				return act;
 			}
-			//console.log("in Zone. Finding ball");
 			return utils.turn(1, 90);
 		}
 		if (next){

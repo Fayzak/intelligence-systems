@@ -301,5 +301,198 @@ module.exports = {
             x: Number((resultX / flags.length).toFixed(2)),
             y: Number((resultY / flags.length).toFixed(2))
         }
-    }
+    },
+    canPass(pos, player, enemies, danger){
+        if (Math.abs(player.x) > 46){
+            return false;
+        }
+        let poses = [];
+        let coeffs = [0.1, 0.5, 0.7, 1.];
+        for (const c of coeffs){
+            poses.push([pos.x + c * (player.x - pos.x), pos.y + c * (player.y - pos.y)])
+        }
+
+        for (const position of poses){
+            for (const enemy of enemies){
+                if (!enemy.x){
+                    continue;
+                }
+                if (Math.pow(Math.pow(enemy.x - position.x, 2) + Math.pow(enemy.y - position.y, 2), 0.5) < danger){
+                    return false;
+                }
+            }
+        }
+        return true;
+    },
+    pass(taken){
+        let side = taken.side;
+        let sign = (side == 'l') ? 1 : -1;
+        let dir = this.seeDir(taken);
+        if (!taken.state.pos){
+            return;
+        }
+        for (const player of taken.state['myTeam']){
+            if (!player.x){
+                continue;
+            }
+            let num = Math.random();
+            let stake;
+            if (dir){
+                stake = taken.fw_p;
+            } else {
+                stake = taken.back_p;
+            }
+
+            if (stake < num){
+                continue;
+            }
+
+
+            let can = this.canPass(taken.state.pos, player, taken.state['enemyTeam'], 5);
+            if (!can){
+                continue;
+            }
+            can = this.canPass(taken.state.pos, player, taken.state['players'], 5);
+            if (!can){
+                continue;
+            }
+            console.log(taken.state.pos.x, player.x);
+            return {n: "kick", v: 2 * player.dist + 10 + " " + player.angle};
+        }
+        return null;
+    },
+    turn(side, angle){
+        return {n: 'turn', v: side * angle};
+    },
+    returnInZone(y, bottom, top, direction, taken){
+        if (y <= bottom && y >= top){
+            return null;
+        }
+        let keys = Object.keys(taken.state.all_flags);
+        for (const key of keys) {
+            let flag = taken.state.all_flags[key];
+            if (flag.y <= bottom && flag.y >= top){
+                if (Math.abs(flag.angle) > 5){
+                    return [{n: "turn", v: flag.angle}, {n: "dash", v: 80}];    
+                }
+                return {n: "dash", v: 80};
+            }
+        }
+        return {n: "turn", v: 45};
+    },
+    kick(taken){
+        let side = taken.side;
+        let flags, plus;
+        if (side == "l"){
+            flags = ["fgrt", "gr", "fgrb"];
+            plus = [5, 0, -5];
+        } else {
+            flags = ['fglt', 'gl', 'fglb'];
+            plus = [-5, 0, 5];
+        }
+        for (let i = 0; i < 3; i++){
+            let flag = flags[i];
+            if (taken.state.all_flags[flag]){
+                return {n: "kick", v: "100 " + (taken.state.all_flags[flag].angle + plus[i])};
+            }
+        }
+
+        let random_flag = taken.state.all_flags[Object.keys(taken.state.all_flags)[0]];
+        if (side == "l"){
+            if (random_flag.y > 0){
+                return {n: "kick", v: "5 -60"};
+            } else {
+                return {n: "kick", v: "5 60"};
+            }
+        } else {
+            if (random_flag.y < 0){
+                return {n: "kick", v: "5 -60"};
+            } else {
+                return {n: "kick", v: "5 60"};
+            }            
+        }
+
+    },
+    seeDir(taken){
+        if (!taken.state.pos){
+            return true;
+        }
+        let side = taken.side;
+        let sign = (side == 'l') ? 1 : -1;
+        let keys = Object.keys(taken.state.all_flags);
+        for (const key of keys){
+            let flag = taken.state.all_flags[key];
+            if (Math.abs(flag.x) < 50){
+                continue;
+            }
+            let dir = (flag.x > taken.state.pos.x) ? 1 : -1;
+            if (dir == sign){
+                return true;
+            }
+        }
+        return false;
+    },
+    forward(taken){
+        if (!taken.state.pos){
+            return null;
+        }
+        let sign = (taken.side == 'l') ? 1 : -1;
+        let dist = 10;
+        let pos = taken.state.pos;
+        destination = {'x': pos.x + sign*dist, 'y': pos.y};
+        let can = this.canPass(pos, destination, taken.state.enemyTeam.concat(taken.state.players), 5);
+        if (can){
+            return {n: "kick", v: "25 0"};
+        }
+
+        destination = {'x': pos.x + sign * Math.sqrt(3) / 2 * dist, 'y': pos.y + sign * dist / 2};
+        can = canPass(pos, destination, taken.state.enemyTeam.concat(taken.state.players), 5);
+        if (can){
+            return {n: "kick", v: "25 -30"};
+        }
+
+        destination = {'x': pos.x + sign * Math.sqrt(3) / 2 * dist, 'y': pos.y + -sign * dist / 2};
+        can = canPass(pos, destination, taken.state.enemyTeam.concat(taken.state.players), 5);
+        if (can){
+            return {n: "kick", v: "25 30"};
+        }
+        return null;        
+    },
+    go2ball(x, y, bottom, top, center, ball_angle, direction, taken){
+        let speed = 100;
+        if (Math.abs(ball_angle) > 7){
+            return {n: "turn", v: ball_angle};
+        }
+        return {n: "dash", v: speed};
+    },
+    teamTaken(taken){
+        if (!taken.state.ball || !taken.state.pos){
+            return false;
+        }
+        if (!taken.state['myTeam']){
+            return false;
+        }
+        let ball = taken.state.ball;
+        let pos = taken.state.pos;
+        let mydist = Math.pow(pos.x - ball.x, 2) + Math.pow(pos.y - ball.y, 2);
+        for (const player of taken.state['myTeam']){
+            if (!player.x){
+                continue;
+            }
+            let dist = Math.pow(player.x - ball.x, 2) + Math.pow(player.y - ball.y, 2);
+            if (dist < 81 && dist < mydist){
+                return true;
+            }
+        }
+        return false;
+    },
+    takeBall(dist, angle){
+        if (Math.abs(angle) > 7){
+            return {n: "turn", v: angle};
+        }
+        if (dist < 2){
+            return {n: "dash", v: 50};
+        } 
+        return {n: "dash", v: 100};
+    },
 }

@@ -15,7 +15,6 @@ const CTRL_MIDDLE = {
 				input.cmd = this.seekBall(input);
 				break;
 		}
-		//input.action = this.action;
 		if (next){
 			const command = next.execute(input, controllers.slice(1));
 			if (command) return command;
@@ -39,8 +38,7 @@ const CTRL_MIDDLE = {
 	},
 	seekBall(input){
 		if (input.side != 'l' && input.team == "A"){
-			throw "Error";
-			console.log(input.turnData);				
+			throw "Error";			
 		}
 
 		if (input.state.all_flags[input.turnData]){
@@ -60,7 +58,6 @@ const CTRL_MIDDLE = {
 		if (input.turnData == "fb0"){
 			return {n: "turn", v: (input.side == "l") ? 20 : -20};
 		}
-		//throw "Error"
 	}
 }
 

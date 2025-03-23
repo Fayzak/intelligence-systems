@@ -5,10 +5,7 @@ const Utils = require('./utils')
 const readline = require('readline')
 
 class Agent {
-
-    constructor() {
-
-
+    constructor(teamName) {
         readline.createInterface({
             input: process.stdin,
             output: process.stdout
@@ -32,7 +29,8 @@ class Agent {
         this.side = null
         this.id = null
 
-        this.teamName = null
+        this.teamName = teamName
+        this.controllers = null
 
         this.assumedPosition = null
         this.assumedAngle = 0
@@ -46,6 +44,14 @@ class Agent {
         this.isHearedGo = false
 
         this.agentHearedState = undefined
+
+        this.start_x = null
+        this.start_y = null
+
+        this.bottom = null
+        this.top = null
+        this.center = null
+        this.direction = null
     }
 
     socketSend(command, value) {
@@ -84,10 +90,6 @@ class Agent {
 
     setId(id) {
         this.id = id
-    }
-
-    setTeamName(teamName) {
-        this.teamName = teamName
     }
 
     setPosition(position) {

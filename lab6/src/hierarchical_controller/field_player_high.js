@@ -1,16 +1,12 @@
-const utils = require("./utils");
+const utils = require("../utils");
 
 const CTRL_HIGH = {
 	name: "player_high",
 	execute(taken, controllers, bottom, top, direction, center){
 		let act;
 		if (taken.state.ball.dist <= 0.5){
-			//if (!utils.seeDir(taken)){
-			//	return {n: "kick", v: "10 45"};
-			//}
 			if (taken.kick){
 				act = utils.pass(taken);
-				//console.log("ACT: ", act);
 				if (act){
 					return act;
 				} else {
@@ -49,7 +45,6 @@ const CTRL_HIGH = {
 			//...........
 
 			act = utils.pass(taken);
-			//console.log("ACT: ", act);
 			if (act){
 				return act;
 			} else {
@@ -57,7 +52,6 @@ const CTRL_HIGH = {
 					return {n: "kick", v: "10 45"};
 				}
 				act = utils.forward(taken);
-				//console.log("second act", act);
 				if (!act){
 					return {n: "kick", v: "10 45"}
 				}
@@ -68,12 +62,6 @@ const CTRL_HIGH = {
 
 
 		if (taken.state.ball.dist >= 5){
-			//console.log("Ball far. returning in zone");
-			//act = utils.avoidCollision(taken);
-			//if (act){
-				//console.log("AVOIDED!");
-			//	return act;
-			//}
 			for (const player of taken.state.myTeam){
 				if (player.dist < 10){
 					return null;
@@ -83,14 +71,10 @@ const CTRL_HIGH = {
 			if (act){
 				return act;
 			}
-			//console.log("in zone. Go 2 ball");
 			let x = taken.state.pos.x;
 			let y = taken.state.pos.y;
 			return utils.go2ball(x, y, bottom, top, center, taken.state.ball.angle, direction, taken);			
 		}
-
-		// TODO: проверить, что рядом с мячом нет своих
-		//console.log("take ball");
 
 		let teamTake = utils.teamTaken(taken);
 		if (!teamTake){
