@@ -42,7 +42,7 @@ const TA = {
         * "variable" и таймеров "timer" */
         far_start:
             [{
-                guard: [{s: "lt", l: 2, r: {t: "t"}}],
+                guard: [{s: "lt", l: 1, r: {t: "t"}}],
                 synch: "runToBall!",
                 assign: [{n: "t", v: 0, type: "timer"}]
             }, {
