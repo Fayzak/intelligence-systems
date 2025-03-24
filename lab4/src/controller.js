@@ -107,12 +107,13 @@ class Controller {
                         // {action: "run", target: "frt"},
                         // {action: "run", target: "flb"},
                         // {action: "run", target: "flt"},
-                        {action: "run", target: "fc"},
-                        {action: "run", target: "fplc"},
+                        {action: "run", target: "fplt"},
+                        {action: "run", target: "fprb"},
                         // {action: "kick", target: "gr"}
                     ]
                 } else {
                     this.actions = [
+                        {action: "run", target: "fplc"},
                         {action: "send_pass", target: leaderName, side: side}
                     ]
                 }
@@ -237,7 +238,7 @@ class Controller {
     }
 
     onHear(tick, sender, message) {
-        if (message.includes("goal") && this.actions[this.currentActionIndex].action === "kick") {
+        if (message.includes("goal") && this.actions[this.currentActionIndex].action === "kick" || this.actions[this.currentActionIndex].action == "send_pass") {
             this.currentActionIndex = (this.currentActionIndex + 1) % this.actions.length
         }
     }

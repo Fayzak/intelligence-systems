@@ -81,7 +81,10 @@ module.exports = {
     kickInGate: {
         terminate: true,
         getCommand: () => {
-            return ["kick", 100, IterationState.gate.direction]
+            if (IterationState.gate.distance < 40) {
+                return ["kick", 100, IterationState.gate.direction]
+            }
+            return ["kick", 30, IterationState.gate.direction]
         },
         getResult: () => {
         }

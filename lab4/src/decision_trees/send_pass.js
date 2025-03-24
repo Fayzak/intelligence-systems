@@ -265,7 +265,7 @@ module.exports = {
         terminate: true,
         getCommand: () => {
             IterationState.isPassed = true
-            return ["kick", 70, IterationState.scorer.visible.angle]
+            return ["kick", 40, IterationState.scorer.visible.angle]
         },
         getResult: () => {
         }
