@@ -61,6 +61,10 @@ class Agent {
         this.setAngle((this.assumedAngle + angle) % 180)
     }
 
+    catch(angle) {
+        this.socketSend("catch", `${angle}`)
+    }
+
     kick(power, angle) {
         this.socketSend("kick", `${power} ${angle}`)
     }
@@ -301,6 +305,8 @@ class Agent {
                 break
             case "say":
                 this.say(...commandParameters)
+            case "catch":
+                this.catch(...commandParameters)
             case "stay":
                 break
         }

@@ -30,6 +30,24 @@ module.exports = {
 
         return [["dash", 80]]
     },
+    catch: (agentState) => {
+        const ball = agentState.gameObjects.find(gameObject => gameObject.name === "b")
+
+        if (ball === undefined) {
+            return [["turn", Searcher.getDirection()]]
+        }
+        Searcher.reset()
+
+        if (ball.distance > 2) {
+            if (Math.abs(ball.angle) > 10) {
+                return [["turn", ball.angle]]
+            }
+            return [["dash", 80]]
+        }
+
+        return [["catch", ball.angle]]
+        
+    },
     kick: (agentState, targetName, nearDistance = 25) => {
         const ball = agentState.gameObjects.find(gameObject => gameObject.name === "b")
 

@@ -52,6 +52,16 @@ class GoalieController {
 
                 return this.processResult(ActionProcessor.seekBall(agentState))
             }
+            case "catch": {
+                const ball = agentState.gameObjects.find(gameObject => gameObject.name === "b")
+
+                if (ball !== undefined && ball.distance <= 2) {
+                    this.currentAction = "kick"
+                    return ["catch", ball.angle]
+                }
+
+                return this.processResult(ActionProcessor.catch(agentState))
+            }
             case "kick": {
 
                 const gateName = `g${agentState.side}`

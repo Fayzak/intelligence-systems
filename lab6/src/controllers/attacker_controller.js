@@ -70,7 +70,7 @@ class AttackController {
                     return ["say", "busy"]
                 }
 
-                return this.processResult(ActionProcessor.kick(agentState, gateName))
+                return this.processResult(ActionProcessor.kick(agentState, gateName, 35))
             }
         }
 
